@@ -59,76 +59,8 @@ int main(int argc, TCHAR* argv[])
     return EXIT_SUCCESS;
 }
 
-void checkerboard()
-{
-    // define all vertices   X     Y     Z
-    GLfloat v0[3], v1[3], v2[3], v3[3], delta;
-    int color = 0;
-
-    delta = 0.5f;
-
-    // define the two colors
-    GLfloat color1[3] = { 0.9f, 0.9f, 0.9f };
-    GLfloat color2[3] = { 0.05f, 0.05f, 0.05f };
-
-    v0[1] = v1[1] = v2[1] = v3[1] = 0.0f;
-
-    glBegin(GL_QUADS);
-
-    for (int x = -5; x <= 5; x++)
-    {
-        for (int z = -5; z <= 5; z++)
-        {
-            glColor3fv((color++) % 2 ? color1 : color2);
-
-            v0[0] = 0.0f + delta*z;
-            v0[2] = 0.0f + delta*x;
-            v0[1] = -2.0f;
-
-            v1[0] = v0[0] + delta;
-            v1[2] = v0[2];
-            v1[1] = -2.0f;
-
-            v2[0] = v0[0] + delta;
-            v2[2] = v0[2] + delta;
-            v2[1] = -2.0f;
-
-            v3[0] = v0[0];
-            v3[2] = v0[2] + delta;
-            v3[1] = -2.0f;
-
-            glVertex3fv(v0);
-            glVertex3fv(v1);
-            glVertex3fv(v2);
-            glVertex3fv(v3);
-        }
-    }
-    glEnd();
-}
-
 void displayObject()
 {
-    float	 c[4][3] = {		// Axis colours
-        { 1, 0, 0 },
-        { 0, 1, 0 },
-        { 0, 0, 1 },
-        { 1, 1, 1 }
-    };
-    int	 i;				// Loop counters
-    char  *txt[3] = {			// Axis labels
-        "+X", "+Y", "+Z"
-    };
-
-    float theta;
-
-    float  v[4][3] = {		// Vertex positions
-        { 1, 0, 0 },
-        { 0, 1, 0 },
-        { 0, 0, 1 },
-        { 0, 0, 0 }
-    };
-
-
     glMatrixMode(GL_MODELVIEW);		// Setup model transformations
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -138,32 +70,25 @@ void displayObject()
     glRotatef(rotate[1], 0, 1, 0);
     glRotatef(rotate[2], 0, 0, 1);
 
-    glColor3f(1, 1, 0);
-    //glutWireCube( 2.0 );
-    glutWireDodecahedron();
+    float v[4][3] = {
+        { -0.5, 0, 1 },
+        { 0.5, 0, 1 },
+        { 0.5, 0, 0 },
+        { -0.5, 0, 0 }
+    };
 
-    for (i = 0; i < 3; i++)
-    {		// Draw axis at center of cube
-        glBegin(GL_LINES);
-        glColor3fv(c[i]);
-        glVertex3fv(v[i]);
-        glColor3fv(c[3]);
-        glVertex3fv(v[3]);
-        glEnd();
-    }
+    float c[3] = { 1, 1, 1 };
 
-    glColor3f(1, 1, 1);
-
-    drawString(v[0][0], v[0][1], v[0][2], txt[0]);
-    drawString(v[1][0], v[1][1], v[1][2], txt[1]);
-    drawString(v[2][0], v[2][1], v[2][2], txt[2]);
+    // Draw Convex Shapes
+    glBegin(GL_TRIANGLE_FAN);
+    glVertex3fv(v[0]);
+    glVertex3fv(v[1]);
+    glVertex3fv(v[2]);
+    glVertex3fv(v[3]);
+    glEnd();
 
     glPopMatrix();
-
-    checkerboard();
-
     glFlush();				// Flush OpenGL queue
-
     glutSwapBuffers();			// Display back buffer
 }
 

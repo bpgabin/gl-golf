@@ -67,7 +67,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="FileHandler.cpp" />
+    <ClCompile Include="Level.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="Tile.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="FileHandler.h" />
+    <ClInclude Include="Level.h" />
+    <ClInclude Include="Tile.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
