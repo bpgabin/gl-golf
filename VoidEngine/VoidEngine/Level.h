@@ -12,14 +12,13 @@ public:
         float position[3];
     };
 
-    Level();
+    Level(list<Tile> tiles, LevelObject tee, LevelObject cup);
     list<Tile> getTiles() const;
     LevelObject getTee() const;
     LevelObject getCup() const;
 
 private:
-    list<Tile> tiles;
-    LevelObject tee;
-    LevelObject cup;
-
+    list<Tile> mTiles;
+    LevelObject mTee;
+    LevelObject mCup;
 };
