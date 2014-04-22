@@ -1,6 +1,8 @@
 #include <cstdlib>
 #include <GL/freeglut.h>
 #include <string>
+#include "FileHandler.h"
+using namespace std;
 
 void displayObject();
 void drawString(float, float, float, char*);
@@ -24,6 +26,9 @@ int    mouse_x, mouse_y;		// Current mouse position
 
 int main(int argc, TCHAR* argv[])
 {
+	string inFile = "";
+	inFile = argv[1];
+
     glutInit(&argc, (char **)argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
     glutCreateWindow("VOID Engine");
@@ -61,6 +66,9 @@ int main(int argc, TCHAR* argv[])
 
 void displayObject()
 {
+	FileHandler fileInput;
+	list<Tile> things = fileInput.ReadFile("");
+
     glMatrixMode(GL_MODELVIEW);		// Setup model transformations
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
