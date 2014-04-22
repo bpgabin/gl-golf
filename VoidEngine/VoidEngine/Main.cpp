@@ -1,4 +1,5 @@
 #include <cstdlib>
+#include <cmath>
 #include <GL/freeglut.h>
 #include <glm/glm.hpp>
 #include <string>
@@ -10,7 +11,7 @@ void drawString(float, float, float, char*);
 void handleMenu(int);
 void handleMotion(int, int);
 void handleMouse(int, int, int, int);
-glm::vec3 calculateNormals(vector<glm::vec3> verts);
+glm::vec3 calculateNormal(vector<glm::vec3> verts);
 
 typedef enum
 {
@@ -86,25 +87,129 @@ void displayObject()
 	glRotatef(rotateVal[1], 0, 1, 0);
 	glRotatef(rotateVal[2], 0, 0, 1);
 
-	float c[3] = { 0.1f, 0.9f, 0.1f };
+    glm::vec4 lightPos(1.0, 2.0, 1.0, 1.0);
+    glLightfv(GL_LIGHT0, GL_POSITION, &lightPos[0]);
+
+    glm::vec3 green(0, 1, 0);
+    glm::vec3 red(1, 0, 0);
+    glm::vec3 black(0, 0, 0);
+    glm::vec3 blue(0, 0, 1);
 
 	// Draw Level
-	// Iterate through tiles
+	// Iterate through and draw tiles
 	vector<Tile> tiles = level->getTiles();
 	for (unsigned i = 0; i < tiles.size(); i++)
 	{
+        // Draw floor of tile
 		vector<glm::vec3> verts = tiles[i].getVertices();
-		glm::vec3 normals = calculateNormals(verts);
+		glm::vec3 normals = calculateNormal(verts);
 		glBegin(GL_TRIANGLE_FAN);
+        glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, &green[0]);
 		glNormal3fv(&normals[0]);
 		for (unsigned j = 0; j < verts.size(); j++)
 		{
 			glm::vec3 vert = verts[j];
-			glColor3f(c[0], c[1], c[2]);
 			glVertex3f(vert.x, vert.y, vert.z);
 		}
 		glEnd();
+
+        // Draw walls
+        vector<int> neighbors = tiles[i].getNeighbors();
+        // Search through neighbors
+        for (unsigned j = 0; j < neighbors.size(); j++)
+        {
+            // If there is no neighbor draw a wall
+            if (neighbors[j] == 0)
+            {
+                vector<glm::vec3> wall;
+                // Get ground points
+                wall.push_back(verts[j]);
+                if (j + 1 == neighbors.size())
+                {
+                    wall.push_back(verts[0]);
+                    wall.push_back(verts[0] + glm::vec3(0.0, 0.25, 0.0));
+                }
+                else
+                {
+                    wall.push_back(verts[j + 1]);
+                    wall.push_back(verts[j + 1] + glm::vec3(0.0, 0.25, 0.0));
+                }
+                wall.push_back(verts[j] + glm::vec3(0, 0.25, 0));
+
+                //Calculate normal
+                glm::vec3 normal = calculateNormal(wall);
+                normal = -normal;
+
+                // Draw Wall
+                glm::vec3 red(1, 0, 0);
+                glBegin(GL_TRIANGLE_FAN);
+                glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, &red[0]);
+                glNormal3fv(&normal[0]);
+                glVertex3fv(&wall[0][0]);
+                glVertex3fv(&wall[1][0]);
+                glVertex3fv(&wall[2][0]);
+                glVertex3fv(&wall[3][0]);
+                glEnd();
+            }
+        }
 	}
+
+    // Draw Cup
+    vector<glm::vec3> cupPoints;
+    Level::LevelObject cup = level->getCup();
+    cupPoints.push_back(cup.position + glm::vec3(0.0, 0.01, 0.0));
+    // Create Vertices
+    for (int i = 0; i < 10; i++)
+    {
+        float x = sin((6.28 / 10.0) * i) * 0.1;
+        float z = cos((6.28 / 10.0) * i) * 0.1;
+        glm::vec3 point(x + cup.position.x, cup.position.y + 0.01, z + cup.position.z);
+        cupPoints.push_back(point);
+    }
+    float x = sin(0) * 0.1;
+    float z = cos(0) * 0.1;
+    glm::vec3 point(x + cup.position.x, cup.position.y + 0.01, z + cup.position.z);
+    cupPoints.push_back(point);
+
+    //glm::vec3 c1 = cup.position - glm::vec3(-0.1, -0.01, -0.1);
+    //glm::vec3 c2 = cup.position - glm::vec3(0.1, -0.01, -0.1);
+    //glm::vec3 c3 = cup.position - glm::vec3(0.1, -0.01, 0.1);
+    //glm::vec3 c4 = cup.position - glm::vec3(-0.1, -0.01, 0.1);
+    //cupPoints.push_back(c1);
+    //cupPoints.push_back(c2);
+    //cupPoints.push_back(c3);
+    //cupPoints.push_back(c4);
+    glm::vec3 cupNormal = calculateNormal(cupPoints);
+    glBegin(GL_TRIANGLE_FAN);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, &black[0]);
+    glNormal3fv(&cupNormal[0]);
+    for (unsigned i = 0; i < cupPoints.size(); i++)
+    {
+        glVertex3fv(&cupPoints[i][0]);
+    }
+    glEnd();
+
+    // Draw Tee
+    vector<glm::vec3> teePoints;
+    Level::LevelObject tee = level->getTee();
+    // Create Vertices
+    glm::vec3 t1 = tee.position - glm::vec3(-0.1, -0.01, -0.1);
+    glm::vec3 t2 = tee.position - glm::vec3( 0.1, -0.01, -0.1);
+    glm::vec3 t3 = tee.position - glm::vec3( 0.1, -0.01,  0.1);
+    glm::vec3 t4 = tee.position - glm::vec3(-0.1, -0.01,  0.1);
+    teePoints.push_back(t1);
+    teePoints.push_back(t2);
+    teePoints.push_back(t3);
+    teePoints.push_back(t4);
+    glm::vec3 teeNormal = calculateNormal(teePoints);
+    glBegin(GL_TRIANGLE_FAN);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, &blue[0]);
+    glNormal3fv(&teeNormal[0]);
+    glVertex3fv(&teePoints[0][0]);
+    glVertex3fv(&teePoints[1][0]);
+    glVertex3fv(&teePoints[2][0]);
+    glVertex3fv(&teePoints[3][0]);
+    glEnd();
 
     glPopMatrix();
     glFlush();				// Flush OpenGL queue
@@ -112,7 +217,7 @@ void displayObject()
 }
 
 // Calculates the normal vector using the first three verts from input
-glm::vec3 calculateNormals(vector<glm::vec3> verts)
+glm::vec3 calculateNormal(vector<glm::vec3> verts)
 {
 	glm::vec3 p1 = verts[0];
 	glm::vec3 p2 = verts[1];

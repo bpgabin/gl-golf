@@ -130,7 +130,10 @@ Level FileHandling::ReadFile(string filename)
 		Level level(tiles, tee, cup);
 		return level;
 	}
-	else cerr << "Error: Unable to open file.";
+    else
+    {
+        cerr << "Error: Unable to open file.";
+    }
 }
 
 
