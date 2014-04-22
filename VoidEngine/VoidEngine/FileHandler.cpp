@@ -3,8 +3,10 @@
 void FileHandler() {
 	string line;
 	stringstream ss;
-	string object, tileID, edges, points, neibors, nums;
+	string object, tile, edges, points, neibors, nums;
 	int temp;
+	int tileID;
+	float vert[3];
 	list<float> vertices;
 	list<int> neighbors;
 	ifstream myfile("hole.00.db");
@@ -18,19 +20,28 @@ void FileHandler() {
 
 			// separation of data into separate strings
 			ss >> object;
-			ss >> tileID;
+			ss >> tile;
+			istringstream(tile) >> tileID;
 			ss >> edges;
 			// caculates how many points current tile has for reading correct number of points from data file
 			int numEdges;
 			istringstream(edges) >> numEdges;
-			int numPoints = numEdges * 3;
+			//int numPoints = numEdges * 3;
 			//adds point to list of floats
-			for (int i = 0; i < numPoints; i++)
+			for (int i = 0; i < numEdges; i++)
 			{
-				ss >> nums;
-				points.append(nums);
-				istringstream(nums) >> temp;
-				vertices.push_back(temp);
+				
+				//vertices.push_back(temp);
+				for (int i = 0; i < 3; i++)
+				{
+					ss >> nums;
+					points.append(nums);
+					istringstream(nums) >> temp;
+					
+					vert[i] = temp;
+
+				}
+					vertices.push_back(vert[3]);
 
 			}
 			// same as above but this time for edges
@@ -44,7 +55,7 @@ void FileHandler() {
 			}
 			// output of strings for testing
 			cout << "object: " << object << endl;
-			cout << "tileID:" << tileID << endl;
+			cout << "tileID:" << tile << endl;
 			cout << "edges:" << edges << endl;
 			cout << "points:" << points << endl;
 			cout << "neighbors:" << neibors << endl;
@@ -54,6 +65,7 @@ void FileHandler() {
 
 
 		}
+
 		myfile.close();
 	}
 
