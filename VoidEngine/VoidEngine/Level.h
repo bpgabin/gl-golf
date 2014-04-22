@@ -1,24 +1,27 @@
-#include <list>
+#include <vector>
 #include <GL/freeglut.h>
+#include <glm/glm.hpp>
 #include "Tile.h"
-using namespace std;
 
+// Represents a complete mini-golf level.
 class Level
 {
 public:
+	// Representation of a level object such as a tee or cup
     struct LevelObject
     {
-        int tileID;
-        float position[3];
+        int				tileID;
+		glm::vec3		position;
     };
 
-    Level(list<Tile> tiles, LevelObject tee, LevelObject cup);
-    list<Tile> getTiles() const;
-    LevelObject getTee() const;
-    LevelObject getCup() const;
+public:
+						Level(std::vector<Tile> tiles, LevelObject tee, LevelObject cup);
+	std::vector<Tile>	getTiles() const;
+    LevelObject			getTee() const;
+    LevelObject			getCup() const;
 
 private:
-    list<Tile> mTiles;
-    LevelObject mTee;
-    LevelObject mCup;
+	std::vector<Tile>	mTiles;
+    LevelObject			mTee;
+    LevelObject			mCup;
 };

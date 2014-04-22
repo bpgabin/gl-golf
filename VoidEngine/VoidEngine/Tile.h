@@ -1,17 +1,17 @@
-#include <list>
-#include <GL/freeglut.h>
-using namespace std;
+#include <vector>
+#include <glm/glm.hpp>
 
+// Represents a single tile in the mini-golf level
 class Tile
 {
 public:
-    Tile(int ID, list<float> vertices, list<int> neighbors);
-    list<float> getVertices();
-	list<int> getNeighbors();
-    int getID() const;
+							Tile(int ID, std::vector<glm::vec3> vertices, std::vector<int> neighbors);
+	int						getID() const;
+	std::vector<glm::vec3>	getVertices() const;
+	std::vector<int>		getNeighbors() const;
 
 private:
-    int mID;
-    list<float> mVertices;
-    list<int> mNeighbors;
+	int						mID;
+	std::vector<glm::vec3>	mVertices;
+	std::vector<int>		mNeighbors;
 };

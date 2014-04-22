@@ -1,13 +1,16 @@
 #include <cstdlib>
 #include <GL/freeglut.h>
+#include <glm/glm.hpp>
 #include <string>
-#include "FileHandler.h"
+#include <vector>
+#include "FileHandling.h"
 using namespace std;
 void displayObject();
 void drawString(float, float, float, char*);
 void handleMenu(int);
 void handleMotion(int, int);
 void handleMouse(int, int, int, int);
+glm::vec3 calculateNormals(vector<glm::vec3> verts);
 
 typedef enum
 {
@@ -17,16 +20,23 @@ typedef enum
     ROTATE_Z
 } mode;
 
-int    btn[3] = { 0 };		// Current button state
-mode   cur_mode = TRANSLATE;		// Current mouse mode
-float  translate[3] = { 0 };		// Current translation values
-float  rotateVal[3] = { 0 };		// Current rotation values
-int    mouse_x, mouse_y;		// Current mouse position
+int		btn[3] = { 0 };				// Current button state
+mode	cur_mode = TRANSLATE;		// Current mouse mode
+float	translate[3] = { 0 };		// Current translation values
+float	rotateVal[3] = { 0 };		// Current rotation values
+int		mouse_x, mouse_y;			// Current mouse position
+Level*	level;						// Level to be rendered
 
 int main(int argc, TCHAR* argv[])
 {
-	string inFile = "";
+	// Read in file name
+	string inFile;
 	inFile = argv[1];
+
+	// Parse file into level
+	Level loadedLevel = FileHandling::ReadFile(inFile);
+	level = &loadedLevel;
+
 
     glutInit(&argc, (char **)argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
@@ -57,6 +67,8 @@ int main(int argc, TCHAR* argv[])
     glClearDepth(1.0);			// Setup background colour
     glClearColor(0, 0, 0, 0);
     glEnable(GL_DEPTH_TEST);
+	glEnable(GL_LIGHTING);
+	glEnable(GL_LIGHT0);
 
     glutMainLoop();
 
@@ -65,38 +77,56 @@ int main(int argc, TCHAR* argv[])
 
 void displayObject()
 {
-	FileHandler fileInput;
-	Level things = fileInput.ReadFile("");
+	glMatrixMode(GL_MODELVIEW);		// Setup model transformations
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    glMatrixMode(GL_MODELVIEW);		// Setup model transformations
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glPushMatrix();
+	glTranslatef(translate[0], translate[1], translate[2]);
+	glRotatef(rotateVal[0], 1, 0, 0);
+	glRotatef(rotateVal[1], 0, 1, 0);
+	glRotatef(rotateVal[2], 0, 0, 1);
 
-    glPushMatrix();
-    glTranslatef(translate[0], translate[1], translate[2]);
-    glRotatef(rotateVal[0], 1, 0, 0);
-    glRotatef(rotateVal[1], 0, 1, 0);
-    glRotatef(rotateVal[2], 0, 0, 1);
+	float c[3] = { 0.1f, 0.9f, 0.1f };
 
-    float v[4][3] = {
-        { -0.5, 0, 1 },
-        { 0.5, 0, 1 },
-        { 0.5, 0, 0 },
-        { -0.5, 0, 0 }
-    };
-
-    float c[3] = { 1, 1, 1 };
-
-    // Draw Convex Shapes
-    glBegin(GL_TRIANGLE_FAN);
-    glVertex3fv(v[0]);
-    glVertex3fv(v[1]);
-    glVertex3fv(v[2]);
-    glVertex3fv(v[3]);
-    glEnd();
+	// Draw Level
+	// Iterate through tiles
+	vector<Tile> tiles = level->getTiles();
+	for (unsigned i = 0; i < tiles.size(); i++)
+	{
+		vector<glm::vec3> verts = tiles[i].getVertices();
+		glm::vec3 normals = calculateNormals(verts);
+		glBegin(GL_TRIANGLE_FAN);
+		glNormal3fv(&normals[0]);
+		for (unsigned j = 0; j < verts.size(); j++)
+		{
+			glm::vec3 vert = verts[j];
+			glColor3f(c[0], c[1], c[2]);
+			glVertex3f(vert.x, vert.y, vert.z);
+		}
+		glEnd();
+	}
 
     glPopMatrix();
     glFlush();				// Flush OpenGL queue
     glutSwapBuffers();			// Display back buffer
+}
+
+// Calculates the normal vector using the first three verts from input
+glm::vec3 calculateNormals(vector<glm::vec3> verts)
+{
+	glm::vec3 p1 = verts[0];
+	glm::vec3 p2 = verts[1];
+	glm::vec3 p3 = verts[2];
+
+	glm::vec3 v = p2 - p1;
+	glm::vec3 w = p3 - p1;
+
+	float nx = (v.y * w.z) - (v.z * w.y);
+	float ny = (v.z * w.x) - (v.x * w.z);
+	float nz = (v.x * w.y) - (v.y * w.x);
+
+	glm::vec3 normals(nx, ny, nz);
+	return normals;
 }
 
 void drawString(float x, float y, float z, char *txt)

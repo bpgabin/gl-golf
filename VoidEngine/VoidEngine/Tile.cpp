@@ -1,23 +1,26 @@
 #include "Tile.h"
+using namespace std;
 
-Tile::Tile(int ID, list<float> vertices, list<int> neighbors)
+// Constructor
+Tile::Tile(int ID, vector<glm::vec3> vertices, vector<int> neighbors)
 {
-    mID = ID;
-    mVertices = vertices;
-    mNeighbors = neighbors;
+	mID = ID;
+	mVertices = vertices;
+	mNeighbors = neighbors;
 }
 
-list<float> Tile::getVertices();
+// Accessors
+int Tile::getID() const
+{
+	return mID;
+}
+
+vector<glm::vec3> Tile::getVertices() const
 {
     return mVertices;
 }
 
-list<int> Tile::getNeighbors();
+vector<int> Tile::getNeighbors() const
 {
     return mNeighbors;
-}
-
-int Tile::getID() const
-{
-    return mID;
 }

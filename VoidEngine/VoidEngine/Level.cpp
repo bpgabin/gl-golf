@@ -1,13 +1,14 @@
 #include "Level.h"
+using namespace std;
 
-Level::Level(list<Tile> tiles, LevelObject tee, LevelObject cup)
+Level::Level(vector<Tile> tiles, LevelObject tee, LevelObject cup)
 {
     mTiles = tiles;
     mTee = tee;
     mCup = cup;
 }
 
-list<Tile> Level::getTiles() const
+vector<Tile> Level::getTiles() const
 {
     return mTiles;
 }
