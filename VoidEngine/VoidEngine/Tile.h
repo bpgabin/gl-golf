@@ -5,13 +5,13 @@ using namespace std;
 class Tile
 {
 public:
-    Tile(int ID, list<float[3]> vertices, list<int> neighbors);
-    list<float[3]> getVertices() const;
-    list<int> getNeighbors() const;
+    Tile(int ID, list<float> vertices, list<int> neighbors);
+    list<float> getVertices();
+	list<int> getNeighbors();
     int getID() const;
 
 private:
     int mID;
-    list<float[3]> mVertices;
+    list<float> mVertices;
     list<int> mNeighbors;
 };

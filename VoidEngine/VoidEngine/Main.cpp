@@ -3,7 +3,6 @@
 #include <string>
 #include "FileHandler.h"
 using namespace std;
-
 void displayObject();
 void drawString(float, float, float, char*);
 void handleMenu(int);
@@ -21,7 +20,7 @@ typedef enum
 int    btn[3] = { 0 };		// Current button state
 mode   cur_mode = TRANSLATE;		// Current mouse mode
 float  translate[3] = { 0 };		// Current translation values
-float  rotate[3] = { 0 };		// Current rotation values
+float  rotateVal[3] = { 0 };		// Current rotation values
 int    mouse_x, mouse_y;		// Current mouse position
 
 int main(int argc, TCHAR* argv[])
@@ -67,16 +66,16 @@ int main(int argc, TCHAR* argv[])
 void displayObject()
 {
 	FileHandler fileInput;
-	list<Tile> things = fileInput.ReadFile("");
+	Level things = fileInput.ReadFile("");
 
     glMatrixMode(GL_MODELVIEW);		// Setup model transformations
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glPushMatrix();
     glTranslatef(translate[0], translate[1], translate[2]);
-    glRotatef(rotate[0], 1, 0, 0);
-    glRotatef(rotate[1], 0, 1, 0);
-    glRotatef(rotate[2], 0, 0, 1);
+    glRotatef(rotateVal[0], 1, 0, 0);
+    glRotatef(rotateVal[1], 0, 1, 0);
+    glRotatef(rotateVal[2], 0, 0, 1);
 
     float v[4][3] = {
         { -0.5, 0, 1 },
@@ -170,15 +169,15 @@ void handleMotion(int x, int y)
         break;
     case ROTATE_X:			// X rotation
         x_ratchet /= 10.0;
-        rotate[0] += (float)(x - mouse_x) / x_ratchet;
+        rotateVal[0] += (float)(x - mouse_x) / x_ratchet;
         break;
     case ROTATE_Y:			// Y rotation
         x_ratchet /= 10.0;
-        rotate[1] += (float)(x - mouse_x) / x_ratchet;
+        rotateVal[1] += (float)(x - mouse_x) / x_ratchet;
         break;
     case ROTATE_Z:			// Z rotation
         x_ratchet /= 10.0;
-        rotate[2] += (float)(x - mouse_x) / x_ratchet;
+        rotateVal[2] += (float)(x - mouse_x) / x_ratchet;
         break;
     }
 

@@ -1,6 +1,7 @@
 #include <list>
 #include <string>
 #include "Tile.h"
+#include "Level.h"
 #include <cstdlib>
 #include <iostream>
 #include <fstream>
@@ -13,5 +14,5 @@ class FileHandler
 public:
     FileHandler();
     ~FileHandler();
-    list<Tile> ReadFile(string);
+    Level ReadFile(string);
 };

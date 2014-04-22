@@ -1,18 +1,18 @@
 #include "Tile.h"
 
-Tile::Tile(int ID, list<float[3]> vertices, list<int> neighbors)
+Tile::Tile(int ID, list<float> vertices, list<int> neighbors)
 {
     mID = ID;
     mVertices = vertices;
     mNeighbors = neighbors;
 }
 
-list<float[3]> Tile::getVertices() const
+list<float> Tile::getVertices();
 {
     return mVertices;
 }
 
-list<int> Tile::getNeighbors() const
+list<int> Tile::getNeighbors();
 {
     return mNeighbors;
 }
