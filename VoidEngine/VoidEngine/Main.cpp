@@ -19,15 +19,23 @@ protected:
     cwc::glShaderManager SM;
     cwc::glShader *shader;
 
+private:
+    string filename;
+    Level level;
+    GLuint triangleVBO;
+
 public:
-    myWindow() {}
+    myWindow(string inputFilename)
+    {
+        filename = inputFilename;
+    }
 
     virtual void OnRender()
     {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        if (shader) shader->begin();
-        glutSolidSphere(1.0, 32, 32);
-        if (shader) shader->end();
+       
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+        
         glutSwapBuffers();
     }
 
@@ -35,6 +43,9 @@ public:
 
     virtual void OnInit()
     {
+        // Load Level
+        level = FileHandling::ReadFile(filename);
+
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         glShadeModel(GL_SMOOTH);
         glEnable(GL_DEPTH_TEST);
@@ -42,6 +53,37 @@ public:
         shader = SM.loadfromFile("vertexshader.txt", "fragmentshader.txt"); // load (and compile, link) from file
         if (shader == 0)
             std::cout << "Error Loading, compiling or linking shader\n";
+
+        // Get Level Data
+        vector<Tile> tiles = level.getTiles();
+        vector<glm::vec3> verts;
+        for (Tile tile : tiles)
+        {
+            vector<glm::vec3> points = tile.getVertices();
+            verts.insert(verts.end(), points.begin(), points.end());
+        }
+
+        // 
+        GLuint shaderAttribute = 0;
+
+        // Create and Manage Buffers
+        // Create a new VBO and use the variable id to store the VBO id
+        glGenBuffers(1, &triangleVBO);
+
+        // Make the new VBO active
+        glBindBuffer(GL_ARRAY_BUFFER, triangleVBO);
+
+        // Upload vertex data to the video device
+        glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * verts.size(), &verts[0], GL_STATIC_DRAW);
+
+        // Specify that our coordinate data is going into attribute index 0(shaderAttribute), and contains three floats per vertex
+        glVertexAttribPointer(shaderAttribute, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+        // Enable attribute index 0(shaderAttribute) as being used
+        glEnableVertexAttribArray(shaderAttribute);
+
+        // Make the new VBO active.
+        glBindBuffer(GL_ARRAY_BUFFER, triangleVBO);
     }
 
     virtual void OnResize(int w, int h) {}
@@ -73,14 +115,14 @@ public:
 
 class myApplication : public cwc::glApplication
 {
-public:
-    virtual void OnInit() { std::cout << "Hello World!\n"; }
 };
 
-int main()
+int main(int argc, char** argv)
 {
+    string filename = argv[1];
+
     myApplication* pApp = new myApplication();
-    myWindow* myWin = new myWindow();
+    myWindow* myWin = new myWindow(filename);
 
     pApp->run();
     delete pApp;

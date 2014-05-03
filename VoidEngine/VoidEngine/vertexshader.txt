@@ -1,9 +1,12 @@
-void main(void)
+/*----------------- "exampleVertexShader.vert" -----------------*/
+ 
+#version 150 // Specify which version of GLSL we are using.
+ 
+// in_Position was bound to attribute index 0("shaderAttribute")
+in  vec3 in_Position;
+ 
+void main() 
 {
-   vec4 a = gl_Vertex;
-   a.x = a.x * 0.5;
-   a.y = a.y * 0.5;
-
-
-   gl_Position = gl_ModelViewProjectionMatrix * a;
+    gl_Position = vec4(in_Position.x, in_Position.y, in_Position.z, 1.0);
 }
+/*--------------------------------------------------------------*/

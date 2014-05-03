@@ -69,4 +69,8 @@
       <Filter>Header Files\cwc</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="fragmentshader.txt" />
+    <Text Include="vertexshader.txt" />
+  </ItemGroup>
 </Project>

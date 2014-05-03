@@ -1,11 +1,21 @@
 #include "Level.h"
 using namespace std;
 
+Level::Level()
+{
+
+}
+
 Level::Level(vector<Tile> tiles, LevelObject tee, LevelObject cup)
 {
     mTiles = tiles;
     mTee = tee;
     mCup = cup;
+}
+
+Level::~Level()
+{
+
 }
 
 vector<Tile> Level::getTiles() const
@@ -21,4 +31,19 @@ Level::LevelObject Level::getTee() const
 Level::LevelObject Level::getCup() const
 {
     return mCup;
+}
+
+void Level::setTiles(vector<Tile> tiles)
+{
+    mTiles = tiles;
+}
+
+void Level::setTee(LevelObject tee)
+{
+    mTee = tee;
+}
+
+void Level::setCup(LevelObject cup)
+{
+    mCup = cup;
 }

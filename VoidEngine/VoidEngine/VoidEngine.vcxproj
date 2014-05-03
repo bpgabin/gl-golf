@@ -87,6 +87,10 @@
     <ClInclude Include="Level.h" />
     <ClInclude Include="Tile.h" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="fragmentshader.txt" />
+    <Text Include="vertexshader.txt" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
