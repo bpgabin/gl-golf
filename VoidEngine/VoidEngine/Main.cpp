@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include "FileHandling.h"
+
 using namespace std;
 void displayObject();
 void drawString(float, float, float, char*);
@@ -108,8 +109,7 @@ void displayObject()
 		glNormal3fv(&normals[0]);
 		for (unsigned j = 0; j < verts.size(); j++)
 		{
-			glm::vec3 vert = verts[j];
-			glVertex3f(vert.x, vert.y, vert.z);
+			glVertex3fv(&verts[j][0]);
 		}
 		glEnd();
 
@@ -171,14 +171,6 @@ void displayObject()
     glm::vec3 point(x + cup.position.x, cup.position.y + 0.01, z + cup.position.z);
     cupPoints.push_back(point);
 
-    //glm::vec3 c1 = cup.position - glm::vec3(-0.1, -0.01, -0.1);
-    //glm::vec3 c2 = cup.position - glm::vec3(0.1, -0.01, -0.1);
-    //glm::vec3 c3 = cup.position - glm::vec3(0.1, -0.01, 0.1);
-    //glm::vec3 c4 = cup.position - glm::vec3(-0.1, -0.01, 0.1);
-    //cupPoints.push_back(c1);
-    //cupPoints.push_back(c2);
-    //cupPoints.push_back(c3);
-    //cupPoints.push_back(c4);
     glm::vec3 cupNormal = calculateNormal(cupPoints);
     glBegin(GL_TRIANGLE_FAN);
     glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, &black[0]);
