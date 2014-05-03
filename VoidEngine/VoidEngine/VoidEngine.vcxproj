@@ -44,7 +44,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>C:\Users\Brian\Projects\voidengine\VoidEngine\VoidEngine\cwc\include;C:\glew\include;C:\freeglut\include;C:\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\glew\include;C:\freeglut\include;C:\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -69,21 +69,21 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="cwc\source\glApplication.cpp" />
-    <ClCompile Include="cwc\source\glsl.cpp" />
-    <ClCompile Include="cwc\source\glutwindow.cpp" />
-    <ClCompile Include="cwc\source\glWindow.cpp" />
     <ClCompile Include="FileHandling.cpp" />
+    <ClCompile Include="glApplication.cpp" />
+    <ClCompile Include="glsl.cpp" />
+    <ClCompile Include="glutwindow.cpp" />
+    <ClCompile Include="glWindow.cpp" />
     <ClCompile Include="Level.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Tile.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="cwc\include\glApplication.h" />
-    <ClInclude Include="cwc\include\glsl.h" />
-    <ClInclude Include="cwc\include\glutwindow.h" />
-    <ClInclude Include="cwc\include\glWindow.h" />
     <ClInclude Include="FileHandling.h" />
+    <ClInclude Include="glApplication.h" />
+    <ClInclude Include="glsl.h" />
+    <ClInclude Include="glutwindow.h" />
+    <ClInclude Include="glWindow.h" />
     <ClInclude Include="Level.h" />
     <ClInclude Include="Tile.h" />
   </ItemGroup>

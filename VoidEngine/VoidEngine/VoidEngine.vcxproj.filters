@@ -33,16 +33,16 @@
     <ClCompile Include="FileHandling.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="cwc\source\glApplication.cpp">
+    <ClCompile Include="glApplication.cpp">
       <Filter>Source Files\cwc</Filter>
     </ClCompile>
-    <ClCompile Include="cwc\source\glsl.cpp">
+    <ClCompile Include="glsl.cpp">
       <Filter>Source Files\cwc</Filter>
     </ClCompile>
-    <ClCompile Include="cwc\source\glutwindow.cpp">
+    <ClCompile Include="glutwindow.cpp">
       <Filter>Source Files\cwc</Filter>
     </ClCompile>
-    <ClCompile Include="cwc\source\glWindow.cpp">
+    <ClCompile Include="glWindow.cpp">
       <Filter>Source Files\cwc</Filter>
     </ClCompile>
   </ItemGroup>
@@ -56,16 +56,16 @@
     <ClInclude Include="FileHandling.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="cwc\include\glApplication.h">
+    <ClInclude Include="glApplication.h">
       <Filter>Header Files\cwc</Filter>
     </ClInclude>
-    <ClInclude Include="cwc\include\glsl.h">
+    <ClInclude Include="glsl.h">
       <Filter>Header Files\cwc</Filter>
     </ClInclude>
-    <ClInclude Include="cwc\include\glutwindow.h">
+    <ClInclude Include="glutwindow.h">
       <Filter>Header Files\cwc</Filter>
     </ClInclude>
-    <ClInclude Include="cwc\include\glWindow.h">
+    <ClInclude Include="glWindow.h">
       <Filter>Header Files\cwc</Filter>
     </ClInclude>
   </ItemGroup>

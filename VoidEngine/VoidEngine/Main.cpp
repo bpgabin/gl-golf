@@ -1,9 +1,12 @@
 #include <cstdlib>
 #include <cmath>
-#include <GL/freeglut.h>
-#include <glm/glm.hpp>
 #include <string>
 #include <vector>
+
+#include "glsl.h"
+#include <GL/freeglut.h>
+#include <glm/glm.hpp>
+
 #include "FileHandling.h"
 
 using namespace std;
