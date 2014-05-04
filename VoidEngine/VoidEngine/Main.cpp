@@ -8,8 +8,10 @@
 #include "glApplication.h"
 #include <GL/freeglut.h>
 #include <glm/glm.hpp>
-
+#include <glm/gtc/type_ptr.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #include "FileHandling.h"
+#include "Camera.h"
 
 using namespace std;
 
@@ -20,22 +22,29 @@ protected:
     cwc::glShader *shader;
 
 private:
-    string filename;
-    Level level;
+    Level* level;
     GLuint triangleVBO;
+    Camera camera;
 
 public:
-    myWindow(string inputFilename)
+    myWindow(string inputFilename) : camera(Camera::ProjectionMode::orthographic)
     {
-        filename = inputFilename;
+        // Load Level
+        //*level = FileHandling::ReadFile(inputFilename);
+        
+        camera.setOrthographicMatrix(-2.0f, 2.0f, -2.0f, 2.0f);
     }
 
     virtual void OnRender()
     {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-       
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-        
+
+        shader->begin();
+        glm::mat4 projectionMatrix = camera.getProjectionMatrix();
+        shader->setUniformMatrix4fv("pMatrix", 1, GL_TRUE, glm::value_ptr(projectionMatrix));
+        glutSolidSphere(1.0f, 32, 32);
+        shader->end();
+
         glutSwapBuffers();
     }
 
@@ -43,9 +52,6 @@ public:
 
     virtual void OnInit()
     {
-        // Load Level
-        level = FileHandling::ReadFile(filename);
-
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         glShadeModel(GL_SMOOTH);
         glEnable(GL_DEPTH_TEST);
@@ -55,35 +61,33 @@ public:
             std::cout << "Error Loading, compiling or linking shader\n";
 
         // Get Level Data
-        vector<Tile> tiles = level.getTiles();
-        vector<glm::vec3> verts;
-        for (Tile tile : tiles)
-        {
-            vector<glm::vec3> points = tile.getVertices();
-            verts.insert(verts.end(), points.begin(), points.end());
-        }
+        //vector<Tile> tiles = level->getTiles();
+        //vector<glm::vec3> verts;
+        //for (Tile tile : tiles)
+        //{
+        //    vector<glm::vec3> points = tile.getVertices();
+        //    verts.insert(verts.end(), points.begin(), points.end());
+        //}
 
-        // 
+        // Attributes
         GLuint shaderAttribute = 0;
 
         // Create and Manage Buffers
         // Create a new VBO and use the variable id to store the VBO id
         glGenBuffers(1, &triangleVBO);
 
-        // Make the new VBO active
+        //// Make the new VBO active
         glBindBuffer(GL_ARRAY_BUFFER, triangleVBO);
 
-        // Upload vertex data to the video device
-        glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * verts.size(), &verts[0], GL_STATIC_DRAW);
+        /* Upload vertex data to the video device */
+        //glBufferData(GL_ARRAY_BUFFER, 3 * 3 * sizeof(float), data, GL_STATIC_DRAW);
+        //glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * verts.size(), verts.data(), GL_STATIC_DRAW);
 
         // Specify that our coordinate data is going into attribute index 0(shaderAttribute), and contains three floats per vertex
         glVertexAttribPointer(shaderAttribute, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
         // Enable attribute index 0(shaderAttribute) as being used
         glEnableVertexAttribArray(shaderAttribute);
-
-        // Make the new VBO active.
-        glBindBuffer(GL_ARRAY_BUFFER, triangleVBO);
     }
 
     virtual void OnResize(int w, int h) {}

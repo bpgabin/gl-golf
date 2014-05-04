@@ -45,6 +45,9 @@
     <ClCompile Include="glWindow.cpp">
       <Filter>Source Files\cwc</Filter>
     </ClCompile>
+    <ClCompile Include="Camera.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Tile.h">
@@ -67,6 +70,9 @@
     </ClInclude>
     <ClInclude Include="glWindow.h">
       <Filter>Header Files\cwc</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

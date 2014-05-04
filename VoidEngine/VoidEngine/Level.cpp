@@ -1,11 +1,6 @@
 #include "Level.h"
 using namespace std;
 
-Level::Level()
-{
-
-}
-
 Level::Level(vector<Tile> tiles, LevelObject tee, LevelObject cup)
 {
     mTiles = tiles;

@@ -69,6 +69,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Camera.cpp" />
     <ClCompile Include="FileHandling.cpp" />
     <ClCompile Include="glApplication.cpp" />
     <ClCompile Include="glsl.cpp" />
@@ -79,6 +80,7 @@
     <ClCompile Include="Tile.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Camera.h" />
     <ClInclude Include="FileHandling.h" />
     <ClInclude Include="glApplication.h" />
     <ClInclude Include="glsl.h" />

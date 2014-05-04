@@ -15,7 +15,6 @@ public:
     };
 
 public:
-                        Level();
 						Level(std::vector<Tile> tiles, LevelObject tee, LevelObject cup);
                         ~Level();
 	std::vector<Tile>	getTiles() const;
