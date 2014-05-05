@@ -1,7 +1,7 @@
 #include <vector>
 #include <GL/freeglut.h>
 #include <glm/glm.hpp>
-#include "Tile.h"
+#include "Tile.hpp"
 
 // Represents a complete mini-golf level.
 class Level

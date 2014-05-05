@@ -1,4 +1,4 @@
-#include "Camera.h"
+#include "Camera.hpp"
 #include <glm/gtc/matrix_transform.hpp>
 
 Camera::Camera(ProjectionMode mode = ProjectionMode::perspective)
@@ -12,16 +12,16 @@ Camera::Camera(ProjectionMode mode = ProjectionMode::perspective)
     mUp         = glm::vec3(0.0f, 1.0f,  0.0f);
 
     // Initialiize Perspective Values
-    mFOV    = 90.0f;
+    mFOV    = 25.0f;
     mAspect = 4.0f / 3.0f;
     mNear   = 0.3f;
-    mFar    = 100.0f;
+    mFar    = 200.0f;
 
     // Initialzie Orthographic Values
-    mLeft   = -1.0f;
-    mRight  =  1.0f;
-    mTop    =  1.0f;
-    mBottom = -1.0f;
+    mLeft   = -5.0f;
+    mRight  =  5.0f;
+    mTop    =  5.0f;
+    mBottom = -5.0f;
 }
 
 glm::mat4 Camera::getViewMatrix() const

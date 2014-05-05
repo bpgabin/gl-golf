@@ -1,9 +1,24 @@
 #version 440
 
-in vec3 in_Position;
-uniform mat4 pMatrix;
+// Input Variables
+layout(location = 0) in vec4 in_Position;
+layout(location = 2) in vec3 in_Normal;
+
+// Uniform Variables
+uniform mat4 pMatrix, vMatrix, mMatrix;
+uniform vec3 lightPosition;
+
+// Output Variables
+out vec3 normal;
+out vec3 lightDir;
 
 void main() 
 {
-    gl_Position = pMatrix * vec4(in_Position, 1.0);
+	vec4 eye = vMatrix * mMatrix * in_Position;
+
+	lightDir = lightPosition - in_Position.xyz;
+
+    gl_Position = pMatrix * vMatrix * mMatrix * in_Position;
+
+	normal = normalize(in_Normal);
 }

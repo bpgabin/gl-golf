@@ -76,18 +76,20 @@
     <ClCompile Include="glutwindow.cpp" />
     <ClCompile Include="glWindow.cpp" />
     <ClCompile Include="Level.cpp" />
+    <ClCompile Include="Light.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Tile.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Camera.h" />
-    <ClInclude Include="FileHandling.h" />
+    <ClInclude Include="Camera.hpp" />
+    <ClInclude Include="FileHandling.hpp" />
     <ClInclude Include="glApplication.h" />
     <ClInclude Include="glsl.h" />
     <ClInclude Include="glutwindow.h" />
     <ClInclude Include="glWindow.h" />
-    <ClInclude Include="Level.h" />
-    <ClInclude Include="Tile.h" />
+    <ClInclude Include="Level.hpp" />
+    <ClInclude Include="Light.hpp" />
+    <ClInclude Include="Tile.hpp" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="fragmentshader.txt" />

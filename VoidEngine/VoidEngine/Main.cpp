@@ -2,6 +2,7 @@
 #include <cmath>
 #include <string>
 #include <vector>
+#include <cmath>
 
 #include "glsl.h"
 #include "glutwindow.h"
@@ -10,8 +11,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include "FileHandling.h"
-#include "Camera.h"
+#include "FileHandling.hpp"
+#include "Camera.hpp"
 
 using namespace std;
 
@@ -25,14 +26,15 @@ private:
     Level* level;
     GLuint triangleVBO;
     Camera camera;
+    unsigned timeSinceStart;
+    float cameraAngle;
+    float cameraRadius;
 
 public:
-    myWindow(string inputFilename) : camera(Camera::ProjectionMode::orthographic)
+    myWindow(string inputFilename) : camera(Camera::ProjectionMode::perspective)
     {
         // Load Level
         //*level = FileHandling::ReadFile(inputFilename);
-        
-        camera.setOrthographicMatrix(-2.0f, 2.0f, -2.0f, 2.0f);
     }
 
     virtual void OnRender()
@@ -41,17 +43,44 @@ public:
 
         shader->begin();
         glm::mat4 projectionMatrix = camera.getProjectionMatrix();
-        shader->setUniformMatrix4fv("pMatrix", 1, GL_TRUE, glm::value_ptr(projectionMatrix));
+        glm::mat4 viewMatrix = camera.getViewMatrix();
+        glm::mat4 modelMatrix = glm::mat4();
+        glm::vec4 diffuseMaterial = glm::vec4(0.5, 0.0, 0.0, 1.0);
+        glm::vec3 lightPosition = glm::vec3(7.0f, 2.0f, 7.0f);
+        shader->setUniformMatrix4fv("pMatrix", 1, GL_FALSE, glm::value_ptr(projectionMatrix));
+        shader->setUniformMatrix4fv("vMatrix", 1, GL_FALSE, glm::value_ptr(viewMatrix));
+        shader->setUniformMatrix4fv("mMatrix", 1, GL_FALSE, glm::value_ptr(modelMatrix));
+        shader->setUniform4fv("diffuseMaterialColor", 1, &diffuseMaterial[0]);
+        shader->setUniform3fv("lightPosition", 1, &lightPosition[0]);
         glutSolidSphere(1.0f, 32, 32);
         shader->end();
 
         glutSwapBuffers();
     }
 
-    virtual void OnIdle() {}
+    virtual void OnIdle()
+    {
+        // Get deltaTime
+        unsigned oldTimeSinceStart = timeSinceStart;
+        timeSinceStart = timeSinceStart = glutGet(GLUT_ELAPSED_TIME);
+        float deltaTime = (float)(timeSinceStart - oldTimeSinceStart) / 1000.0f;
+
+        // Rotate Camera
+        cameraAngle += deltaTime * 2.0f;
+        float xPos = cos(cameraAngle) * cameraRadius;
+        float zPos = sin(cameraAngle) * cameraRadius;
+        camera.setPosition(glm::vec3(xPos, 3.0f, zPos));
+
+        glutPostRedisplay();
+    }
 
     virtual void OnInit()
     {
+        // Get Time
+        timeSinceStart = glutGet(GLUT_ELAPSED_TIME);
+        cameraAngle = 0;
+        cameraRadius = 5.0f;
+
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         glShadeModel(GL_SMOOTH);
         glEnable(GL_DEPTH_TEST);
@@ -70,24 +99,24 @@ public:
         //}
 
         // Attributes
-        GLuint shaderAttribute = 0;
+        //GLuint shaderAttribute = 0;
 
         // Create and Manage Buffers
         // Create a new VBO and use the variable id to store the VBO id
-        glGenBuffers(1, &triangleVBO);
-
+        //glGenBuffers(1, &triangleVBO);
+        
         //// Make the new VBO active
-        glBindBuffer(GL_ARRAY_BUFFER, triangleVBO);
-
+        //glBindBuffer(GL_ARRAY_BUFFER, triangleVBO);
+        
         /* Upload vertex data to the video device */
         //glBufferData(GL_ARRAY_BUFFER, 3 * 3 * sizeof(float), data, GL_STATIC_DRAW);
         //glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * verts.size(), verts.data(), GL_STATIC_DRAW);
-
+        
         // Specify that our coordinate data is going into attribute index 0(shaderAttribute), and contains three floats per vertex
-        glVertexAttribPointer(shaderAttribute, 3, GL_FLOAT, GL_FALSE, 0, 0);
-
+        //glVertexAttribPointer(shaderAttribute, 3, GL_FLOAT, GL_FALSE, 0, 0);
+        
         // Enable attribute index 0(shaderAttribute) as being used
-        glEnableVertexAttribArray(shaderAttribute);
+        //glEnableVertexAttribArray(shaderAttribute);
     }
 
     virtual void OnResize(int w, int h) {}
