@@ -8,7 +8,7 @@
 using namespace std;
 
 // Reads in a mini-golf level and returns a level class containing the information
-Level FileHandling::ReadFile(string filename)
+Level* FileHandling::ReadFile(string filename)
 {
 	// File reading variables
 	string line;
@@ -128,8 +128,7 @@ Level FileHandling::ReadFile(string filename)
 	myfile.close();
 
 	// Create and return level
-	Level level(tiles, tee, cup);
-	return level;
+    return new Level(tiles, tee, cup);
 }
 
 

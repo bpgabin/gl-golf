@@ -16,6 +16,8 @@
 
 using namespace std;
 
+glm::vec3 calculateNormal(vector<glm::vec3>);
+
 class myWindow : public cwc::glutWindow
 {
 protected:
@@ -24,7 +26,13 @@ protected:
 
 private:
     Level* level;
-    GLuint triangleVBO;
+    GLuint levelTriangleVBO;
+    GLuint levelNormalVBO;
+    GLuint levelElementVBO;
+    GLuint ballTrianglVBO;
+    GLuint ballNormalVBO;
+    GLuint ballElementVBO;
+    GLuint vertsCount;
     Camera camera;
     unsigned timeSinceStart;
     float cameraAngle;
@@ -34,7 +42,7 @@ public:
     myWindow(string inputFilename) : camera(Camera::ProjectionMode::perspective)
     {
         // Load Level
-        //*level = FileHandling::ReadFile(inputFilename);
+        level = FileHandling::ReadFile(inputFilename);
     }
 
     virtual void OnRender()
@@ -52,7 +60,12 @@ public:
         shader->setUniformMatrix4fv("mMatrix", 1, GL_FALSE, glm::value_ptr(modelMatrix));
         shader->setUniform4fv("diffuseMaterialColor", 1, &diffuseMaterial[0]);
         shader->setUniform3fv("lightPosition", 1, &lightPosition[0]);
-        glutSolidSphere(1.0f, 32, 32);
+        // Draw Floor Tiles
+        //for (unsigned i = 0; i < level->getTiles().size(); i++)
+        //{
+        //    glDrawArrays(GL_TRIANGLE_FAN, i * 4, 4);
+        //}
+        //glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, (void*)0);
         shader->end();
 
         glutSwapBuffers();
@@ -90,33 +103,53 @@ public:
             std::cout << "Error Loading, compiling or linking shader\n";
 
         // Get Level Data
-        //vector<Tile> tiles = level->getTiles();
-        //vector<glm::vec3> verts;
-        //for (Tile tile : tiles)
-        //{
-        //    vector<glm::vec3> points = tile.getVertices();
-        //    verts.insert(verts.end(), points.begin(), points.end());
-        //}
-
-        // Attributes
-        //GLuint shaderAttribute = 0;
+        vector<Tile> tiles = level->getTiles();
+        vector<glm::vec3> verts;
+        vertsCount = verts.size();
+        vector<glm::vec3> normals;
+        vector<int> elements;
+        int counter = 0;
+        for (int i = 0; i < tiles.size(); i++)
+        {
+            vector<glm::vec3> points = tiles[i].getVertices();
+            verts.insert(verts.end(), points.begin(), points.end());
+            
+            // Calculate and store normals
+            glm::vec3 normal = calculateNormal(points);
+            for (unsigned j = 0; j < points.size(); j++)
+            {
+                normals.push_back(normal);
+            }
+        }
 
         // Create and Manage Buffers
         // Create a new VBO and use the variable id to store the VBO id
-        //glGenBuffers(1, &triangleVBO);
+        glGenBuffers(1, &levelTriangleVBO);
+        glGenBuffers(1, &levelNormalVBO);
+        glGenBuffers(1, &levelElementVBO);
         
-        //// Make the new VBO active
-        //glBindBuffer(GL_ARRAY_BUFFER, triangleVBO);
-        
-        /* Upload vertex data to the video device */
-        //glBufferData(GL_ARRAY_BUFFER, 3 * 3 * sizeof(float), data, GL_STATIC_DRAW);
-        //glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * verts.size(), verts.data(), GL_STATIC_DRAW);
-        
+        // Make the new VBO active
+        glBindBuffer(GL_ARRAY_BUFFER, levelTriangleVBO);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * verts.size(), verts.data(), GL_STATIC_DRAW);
+
+        glBindBuffer(GL_ARRAY_BUFFER, levelNormalVBO);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * normals.size(), normals.data(), GL_STATIC_DRAW);
+
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, levelElementVBO);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint)* elements.size(), elements.data(), GL_STATIC_DRAW);
+
+        GLuint vPosition = glGetAttribLocation(shader->GetProgramObject(), "in_Position");
+        glEnableVertexAttribArray(vPosition);
+
+        GLuint vNormal = glGetAttribLocation(shader->GetProgramObject(), "in_Normal");
+        glEnableVertexAttribArray(vNormal);
+
         // Specify that our coordinate data is going into attribute index 0(shaderAttribute), and contains three floats per vertex
-        //glVertexAttribPointer(shaderAttribute, 3, GL_FLOAT, GL_FALSE, 0, 0);
+        glBindBuffer(GL_ARRAY_BUFFER, levelTriangleVBO);
+        glVertexAttribPointer(vPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
         
-        // Enable attribute index 0(shaderAttribute) as being used
-        //glEnableVertexAttribArray(shaderAttribute);
+        glBindBuffer(GL_ARRAY_BUFFER, levelNormalVBO);
+        glVertexAttribPointer(vNormal, 3, GL_FLOAT, GL_FALSE, 0, 0);
     }
 
     virtual void OnResize(int w, int h) {}
@@ -160,6 +193,24 @@ int main(int argc, char** argv)
     pApp->run();
     delete pApp;
     return EXIT_SUCCESS;
+}
+
+// Calculates the normal vector using the first three verts from input
+glm::vec3 calculateNormal(vector<glm::vec3> verts)
+{
+	glm::vec3 p1 = verts[0];
+	glm::vec3 p2 = verts[1];
+	glm::vec3 p3 = verts[2];
+
+	glm::vec3 v = p2 - p1;
+	glm::vec3 w = p3 - p1;
+
+	float nx = (v.y * w.z) - (v.z * w.y);
+	float ny = (v.z * w.x) - (v.x * w.z);
+	float nz = (v.x * w.y) - (v.y * w.x);
+
+	glm::vec3 normals(nx, ny, nz);
+	return normals;
 }
 
 //void displayObject();
@@ -363,23 +414,6 @@ int main(int argc, char** argv)
 //    glutSwapBuffers();			// Display back buffer
 //}
 //
-//// Calculates the normal vector using the first three verts from input
-//glm::vec3 calculateNormal(vector<glm::vec3> verts)
-//{
-//	glm::vec3 p1 = verts[0];
-//	glm::vec3 p2 = verts[1];
-//	glm::vec3 p3 = verts[2];
-//
-//	glm::vec3 v = p2 - p1;
-//	glm::vec3 w = p3 - p1;
-//
-//	float nx = (v.y * w.z) - (v.z * w.y);
-//	float ny = (v.z * w.x) - (v.x * w.z);
-//	float nz = (v.x * w.y) - (v.y * w.x);
-//
-//	glm::vec3 normals(nx, ny, nz);
-//	return normals;
-//}
 //
 //void drawString(float x, float y, float z, char *txt)
 //

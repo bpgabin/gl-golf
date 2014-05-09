@@ -1,8 +1,8 @@
 #version 440
 
 // Input Variables
-layout(location = 0) in vec4 in_Position;
-layout(location = 2) in vec3 in_Normal;
+in vec4 in_Position;
+in vec3 in_Normal;
 
 // Uniform Variables
 uniform mat4 pMatrix, vMatrix, mMatrix;
