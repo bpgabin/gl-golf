@@ -1,3 +1,4 @@
+#pragma once
 #include <glm/glm.hpp>
 
 class Camera
@@ -17,17 +18,19 @@ public:
     void            setPosition(glm::vec3);
     void            setTarget(glm::vec3);
     void            setUp(glm::vec3);
+	virtual void	handleMouseMovement(float x, float y);
+	virtual void	handleKeyboard(char input);
 
     // Projection Functions
     void            switchProjectionMode(ProjectionMode);
     void            setPerspectiveMatrix(float fov, float aspect, float near, float far);
     void            setOrthographicMatrix(float left, float right, float bottom, float top);
 
-private:
+protected:
     glm::mat4       getPerspectiveMatrix() const;
     glm::mat4       getOrthographicMatrix() const;
 
-private:
+protected:
     ProjectionMode  mMode;
 
     // View Matrix Variables

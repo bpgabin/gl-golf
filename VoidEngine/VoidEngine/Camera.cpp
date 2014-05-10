@@ -52,6 +52,16 @@ void Camera::setUp(glm::vec3 up)
     mUp = up;
 }
 
+void Camera::handleMouseMovement(float x, float y)
+{
+	// Intentionally left blank.
+}
+
+void Camera::handleKeyboard(char input)
+{
+	// Intentionally left blank.
+}
+
 void Camera::switchProjectionMode(ProjectionMode mode)
 {
     mMode = mode;

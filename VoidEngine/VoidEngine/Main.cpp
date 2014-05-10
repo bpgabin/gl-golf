@@ -12,7 +12,9 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include "FileHandling.hpp"
-#include "Camera.hpp"
+#include "FreeLookCamera.hpp"
+#include "TopDownCamera.hpp"
+#include "ThirdPersonCamera.hpp"
 
 using namespace std;
 
@@ -32,14 +34,29 @@ private:
     GLuint ballTrianglVBO;
     GLuint ballNormalVBO;
     GLuint ballElementVBO;
+	Camera* camera;
+    FreeLookCamera freeLookCamera;
+	TopDownCamera topDownCamera;
+	ThirdPersonCamera thirdPersonCamera;
+	
     GLuint vertsCount;
-    Camera camera;
     unsigned timeSinceStart;
     float cameraAngle;
     float cameraRadius;
+	
+	float deltaTime;
+	// horizontal angle : toward -Z
+	float horizontalAngle = 3.14f;
+	// vertical angle : 0, look at the horizon
+	float verticalAngle = 0.0f;
+	const float rotateX = 30.f;
 
+	float speed = 3.0f; // 3 units / second
+	float mouseSpeed = 0.5f;
+	float yrotrad = 0, xrotrad = 0, xpos = 0,ypos = 0, zpos = 0, xrot = 0, yrot = 0; 
+	
 public:
-    myWindow(string inputFilename) : camera(Camera::ProjectionMode::perspective)
+	myWindow(string inputFilename)
     {
         // Load Level
         level = FileHandling::ReadFile(inputFilename);
@@ -47,11 +64,16 @@ public:
 
     virtual void OnRender()
     {
+		// Get deltaTime
+		unsigned oldTimeSinceStart = timeSinceStart;
+		timeSinceStart = timeSinceStart = glutGet(GLUT_ELAPSED_TIME);
+		deltaTime = (float)(timeSinceStart - oldTimeSinceStart) / 1000.0f;
+
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         shader->begin();
-        glm::mat4 projectionMatrix = camera.getProjectionMatrix();
-        glm::mat4 viewMatrix = camera.getViewMatrix();
+        glm::mat4 projectionMatrix = camera->getProjectionMatrix();
+        glm::mat4 viewMatrix = camera->getViewMatrix();
         glm::mat4 modelMatrix = glm::mat4();
         glm::vec4 diffuseMaterial = glm::vec4(0.5, 0.0, 0.0, 1.0);
         glm::vec3 lightPosition = glm::vec3(7.0f, 2.0f, 7.0f);
@@ -73,22 +95,14 @@ public:
 
     virtual void OnIdle()
     {
-        // Get deltaTime
-        unsigned oldTimeSinceStart = timeSinceStart;
-        timeSinceStart = timeSinceStart = glutGet(GLUT_ELAPSED_TIME);
-        float deltaTime = (float)(timeSinceStart - oldTimeSinceStart) / 1000.0f;
-
-        // Rotate Camera
-        cameraAngle += deltaTime * 2.0f;
-        float xPos = cos(cameraAngle) * cameraRadius;
-        float zPos = sin(cameraAngle) * cameraRadius;
-        camera.setPosition(glm::vec3(xPos, 3.0f, zPos));
-
-        glutPostRedisplay();
+      
     }
 
     virtual void OnInit()
     {
+		// Set-up Camera
+		camera = &freeLookCamera;
+
         // Get Time
         timeSinceStart = glutGet(GLUT_ELAPSED_TIME);
         cameraAngle = 0;
@@ -155,24 +169,129 @@ public:
     virtual void OnResize(int w, int h) {}
     virtual void OnClose() {}
     virtual void OnMouseDown(int button, int x, int y) {}
+	virtual void OnMouseMove(int x, int y) {
+
+		camera->handleMouseMovement(x, y);
+		
+		//// Compute new orientation
+		//
+		//horizontalAngle += mouseSpeed  * deltaTime * float(800/2 - x);
+		//verticalAngle += mouseSpeed * deltaTime * float(600/2 - y);
+		//// Direction : Spherical coordinates to Cartesian coordinates conversion
+		//direction = glm::vec3(
+		//	cos(verticalAngle) * sin(horizontalAngle),
+		//	sin(verticalAngle),
+		//	cos(verticalAngle) * cos(horizontalAngle)
+		//	);
+		//camera.setPosition((position));
+		//camera.setTarget(direction);
+		//glutPostRedisplay();
+
+	}
+	
+	
     virtual void OnMouseUp(int button, int x, int y) {}
     virtual void OnMouseWheel(int nWheelNumber, int nDirection, int x, int y) {}
 
     virtual void OnKeyDown(int nKey, char cAscii)
     {
-        if (cAscii == 27) // 0x1b = ESC
-        {
-            this->Close(); // Close Window!
-        }
-    }
+		if (cAscii == 27) // 0x1b = ESC
+		{
+			this->Close(); // Close Window!
+		}
+		else if (cAscii == 49)
+		{
+			camera = &freeLookCamera;
+			glutPostRedisplay();
+		}
+		else if (cAscii == 50)
+		{
+			camera = &topDownCamera;
+			
+			glutPostRedisplay();
+		}
+		else if (cAscii == 51)
+		{
+			camera = &thirdPersonCamera;
 
+		}
+		else
+		{
+			camera->handleKeyboard(cAscii);
+			glutPostRedisplay();
+		}
+		//else if (cAscii == 'w')
+		//{
+		//	
+		//	position += direction * deltaTime * speed;
+		//	camera.setPosition(position);
+		//	camera.setTarget(position + direction);
+		//	glutPostRedisplay();
+		//}
+		//else if (cAscii == 's')
+		//{
+		//
+		//	position -= direction * deltaTime * speed;
+		//	camera.setPosition(position);
+		//	camera.setTarget(position + direction);
+		//	glutPostRedisplay();
+		//}
+		//else if (cAscii == 'd')
+		//{
+		//	// Right vector
+		//	glm::vec3 right = glm::vec3(
+		//		sin(horizontalAngle - 3.14f / 2.0f),
+		//		0,
+		//		cos(horizontalAngle - 3.14f / 2.0f)
+		//		);
+		//
+		//	position += direction * right * 30.f ;
+		//	camera.setPosition(position);
+		//	camera.setTarget(position + direction);
+		//	glutPostRedisplay();
+		//}
+		//else if (cAscii == 'a')
+		//{
+		//	
+		//	// Right vector
+		//	glm::vec3 right = glm::vec3(
+		//		sin(horizontalAngle - 3.14f / 2.0f),
+		//		0,
+		//		cos(horizontalAngle - 3.14f / 2.0f)
+		//		);
+		//
+		//	position -= direction * right  * 30.f ;
+		//	camera.setPosition(position);
+		//	camera.setTarget(position + direction);
+		//	glutPostRedisplay();
+		//}
+		//else if (cAscii == 'y')
+		//{
+		//	yrot += 1;
+		//	if (yrot >360) yrot -= 360;
+		//
+		//	yrotrad = (yrot / 180 * 3.141592654f);
+		//	xpos -= float(sin(yrotrad));
+		//	zpos += float(cos(yrotrad));
+		//	//ypos += float(sin(xrotrad));
+		//	glm::vec3 rotation = glm::vec3(xpos, ypos, zpos);
+		//	camera.setTarget(rotation + direction);
+		//	//camera.setTarget(position + rotation);
+		//
+		//	
+		//
+		//	glutPostRedisplay();
+		//}
+    }
+	
+	
     virtual void OnKeyUp(int nKey, char cAscii)
     {
         if (cAscii == 'f')
         {
             SetFullscreen(true);
         }
-        else if (cAscii == 'w')
+        else if (cAscii == 'g')
         {
             SetFullscreen(false);
         }
@@ -189,6 +308,7 @@ int main(int argc, char** argv)
 
     myApplication* pApp = new myApplication();
     myWindow* myWin = new myWindow(filename);
+
 
     pApp->run();
     delete pApp;
