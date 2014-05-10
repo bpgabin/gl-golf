@@ -3,8 +3,6 @@
 
 ThirdPersonCamera::ThirdPersonCamera() : Camera(perspective)
 {
-	
-	mPosition = 
 	// Initial Values
 	//mSpeed = 0.5f;
 }
