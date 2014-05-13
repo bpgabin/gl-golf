@@ -95,9 +95,6 @@
     <ClInclude Include="Camera.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="TopDownCamera.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Wall.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>

@@ -98,7 +98,6 @@
     <ClInclude Include="Light.hpp" />
     <ClInclude Include="ThirdPersonCamera.hpp" />
     <ClInclude Include="Tile.hpp" />
-    <ClInclude Include="TopDownCamera.h" />
     <ClInclude Include="TopDownCamera.hpp" />
     <ClInclude Include="Wall.hpp" />
   </ItemGroup>

@@ -7,7 +7,7 @@ ThirdPersonCamera::ThirdPersonCamera() : Camera(perspective)
 	//mSpeed = 0.5f;
 }
 
-void ThirdPersonCamera::handleMouseMovement(float x, float y)
+void ThirdPersonCamera::handleMouseMovement(int x, int y)
 {
 
 }

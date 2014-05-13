@@ -43,6 +43,7 @@ private:
     unsigned timeSinceStart;
     float cameraAngle;
     float cameraRadius;
+    GLuint elementCount;
 	
 	float deltaTime;
 	// horizontal angle : toward -Z
@@ -54,12 +55,15 @@ private:
 	float speed = 3.0f; // 3 units / second
 	float mouseSpeed = 0.5f;
 	float yrotrad = 0, xrotrad = 0, xpos = 0,ypos = 0, zpos = 0, xrot = 0, yrot = 0; 
-	
+    bool mouseDown = false;
+    int lastMouseX, lastMouseY;
+
 public:
 	myWindow(string inputFilename)
     {
         // Load Level
         level = FileHandling::ReadFile(inputFilename);
+        std::cout << "test!\n";
     }
 
     virtual void OnRender()
@@ -72,22 +76,21 @@ public:
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         shader->begin();
+        
         glm::mat4 projectionMatrix = camera->getProjectionMatrix();
         glm::mat4 viewMatrix = camera->getViewMatrix();
         glm::mat4 modelMatrix = glm::mat4();
-        glm::vec4 diffuseMaterial = glm::vec4(0.5, 0.0, 0.0, 1.0);
+        glm::vec4 diffuseMaterial = glm::vec4(0.0, 0.5, 0.0, 1.0);
         glm::vec3 lightPosition = glm::vec3(7.0f, 2.0f, 7.0f);
+        
         shader->setUniformMatrix4fv("pMatrix", 1, GL_FALSE, glm::value_ptr(projectionMatrix));
         shader->setUniformMatrix4fv("vMatrix", 1, GL_FALSE, glm::value_ptr(viewMatrix));
         shader->setUniformMatrix4fv("mMatrix", 1, GL_FALSE, glm::value_ptr(modelMatrix));
         shader->setUniform4fv("diffuseMaterialColor", 1, &diffuseMaterial[0]);
         shader->setUniform3fv("lightPosition", 1, &lightPosition[0]);
-        // Draw Floor Tiles
-        //for (unsigned i = 0; i < level->getTiles().size(); i++)
-        //{
-        //    glDrawArrays(GL_TRIANGLE_FAN, i * 4, 4);
-        //}
-        //glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, (void*)0);
+
+        glDrawElements(GL_TRIANGLES, elementCount, GL_UNSIGNED_INT, (void*)0);
+        
         shader->end();
 
         glutSwapBuffers();
@@ -117,24 +120,10 @@ public:
             std::cout << "Error Loading, compiling or linking shader\n";
 
         // Get Level Data
-        vector<Tile> tiles = level->getTiles();
-        vector<glm::vec3> verts;
-        vertsCount = verts.size();
-        vector<glm::vec3> normals;
-        vector<int> elements;
-        int counter = 0;
-        for (int i = 0; i < tiles.size(); i++)
-        {
-            vector<glm::vec3> points = tiles[i].getVertices();
-            verts.insert(verts.end(), points.begin(), points.end());
-            
-            // Calculate and store normals
-            glm::vec3 normal = calculateNormal(points);
-            for (unsigned j = 0; j < points.size(); j++)
-            {
-                normals.push_back(normal);
-            }
-        }
+        std::vector<glm::vec3> verts = level->getTilesVertices();
+        std::vector<glm::vec3> normals = level->getTilesNormals();
+        std::vector<GLuint> elements = level->getTilesIndices();
+        elementCount = elements.size();
 
         // Create and Manage Buffers
         // Create a new VBO and use the variable id to store the VBO id
@@ -168,29 +157,37 @@ public:
 
     virtual void OnResize(int w, int h) {}
     virtual void OnClose() {}
-    virtual void OnMouseDown(int button, int x, int y) {}
-	virtual void OnMouseMove(int x, int y) {
+    virtual void OnMouseDown(int button, int x, int y)
+    {
+        mouseDown = true;
+        lastMouseX = x;
+        lastMouseY = y;
+    }
+	
+    virtual void OnMouseMove(int x, int y)
+    {
+        if (mouseDown)
+        {
 
-		camera->handleMouseMovement(x, y);
-		
-		//// Compute new orientation
-		//
-		//horizontalAngle += mouseSpeed  * deltaTime * float(800/2 - x);
-		//verticalAngle += mouseSpeed * deltaTime * float(600/2 - y);
-		//// Direction : Spherical coordinates to Cartesian coordinates conversion
-		//direction = glm::vec3(
-		//	cos(verticalAngle) * sin(horizontalAngle),
-		//	sin(verticalAngle),
-		//	cos(verticalAngle) * cos(horizontalAngle)
-		//	);
-		//camera.setPosition((position));
-		//camera.setTarget(direction);
-		//glutPostRedisplay();
+            float dx = (x - lastMouseX);
+            float dy = (y - lastMouseY);
 
+            lastMouseX = x;
+            lastMouseY = y;
+
+            camera->handleMouseMovement(dx, dy);
+
+            glutPostRedisplay();
+        }
 	}
 	
 	
-    virtual void OnMouseUp(int button, int x, int y) {}
+    virtual void OnMouseUp(int button, int x, int y)
+    {
+        mouseDown = false;
+        glutPostRedisplay();
+    }
+    
     virtual void OnMouseWheel(int nWheelNumber, int nDirection, int x, int y) {}
 
     virtual void OnKeyDown(int nKey, char cAscii)
@@ -199,89 +196,26 @@ public:
 		{
 			this->Close(); // Close Window!
 		}
-		else if (cAscii == 49)
+		else if (cAscii == '1') // 1
 		{
 			camera = &freeLookCamera;
 			glutPostRedisplay();
 		}
-		else if (cAscii == 50)
+		else if (cAscii == '2') // 2
 		{
 			camera = &topDownCamera;
-			
 			glutPostRedisplay();
 		}
-		else if (cAscii == 51)
+		else if (cAscii == '3') // 3
 		{
 			camera = &thirdPersonCamera;
-
+            glutPostRedisplay();
 		}
 		else
 		{
 			camera->handleKeyboard(cAscii);
 			glutPostRedisplay();
 		}
-		//else if (cAscii == 'w')
-		//{
-		//	
-		//	position += direction * deltaTime * speed;
-		//	camera.setPosition(position);
-		//	camera.setTarget(position + direction);
-		//	glutPostRedisplay();
-		//}
-		//else if (cAscii == 's')
-		//{
-		//
-		//	position -= direction * deltaTime * speed;
-		//	camera.setPosition(position);
-		//	camera.setTarget(position + direction);
-		//	glutPostRedisplay();
-		//}
-		//else if (cAscii == 'd')
-		//{
-		//	// Right vector
-		//	glm::vec3 right = glm::vec3(
-		//		sin(horizontalAngle - 3.14f / 2.0f),
-		//		0,
-		//		cos(horizontalAngle - 3.14f / 2.0f)
-		//		);
-		//
-		//	position += direction * right * 30.f ;
-		//	camera.setPosition(position);
-		//	camera.setTarget(position + direction);
-		//	glutPostRedisplay();
-		//}
-		//else if (cAscii == 'a')
-		//{
-		//	
-		//	// Right vector
-		//	glm::vec3 right = glm::vec3(
-		//		sin(horizontalAngle - 3.14f / 2.0f),
-		//		0,
-		//		cos(horizontalAngle - 3.14f / 2.0f)
-		//		);
-		//
-		//	position -= direction * right  * 30.f ;
-		//	camera.setPosition(position);
-		//	camera.setTarget(position + direction);
-		//	glutPostRedisplay();
-		//}
-		//else if (cAscii == 'y')
-		//{
-		//	yrot += 1;
-		//	if (yrot >360) yrot -= 360;
-		//
-		//	yrotrad = (yrot / 180 * 3.141592654f);
-		//	xpos -= float(sin(yrotrad));
-		//	zpos += float(cos(yrotrad));
-		//	//ypos += float(sin(xrotrad));
-		//	glm::vec3 rotation = glm::vec3(xpos, ypos, zpos);
-		//	camera.setTarget(rotation + direction);
-		//	//camera.setTarget(position + rotation);
-		//
-		//	
-		//
-		//	glutPostRedisplay();
-		//}
     }
 	
 	
@@ -316,22 +250,22 @@ int main(int argc, char** argv)
 }
 
 // Calculates the normal vector using the first three verts from input
-glm::vec3 calculateNormal(vector<glm::vec3> verts)
-{
-	glm::vec3 p1 = verts[0];
-	glm::vec3 p2 = verts[1];
-	glm::vec3 p3 = verts[2];
-
-	glm::vec3 v = p2 - p1;
-	glm::vec3 w = p3 - p1;
-
-	float nx = (v.y * w.z) - (v.z * w.y);
-	float ny = (v.z * w.x) - (v.x * w.z);
-	float nz = (v.x * w.y) - (v.y * w.x);
-
-	glm::vec3 normals(nx, ny, nz);
-	return normals;
-}
+//glm::vec3 calculateNormal(vector<glm::vec3> verts)
+//{
+//	glm::vec3 p1 = verts[0];
+//	glm::vec3 p2 = verts[1];
+//	glm::vec3 p3 = verts[2];
+//
+//	glm::vec3 v = p2 - p1;
+//	glm::vec3 w = p3 - p1;
+//
+//	float nx = (v.y * w.z) - (v.z * w.y);
+//	float ny = (v.z * w.x) - (v.x * w.z);
+//	float nz = (v.x * w.y) - (v.y * w.x);
+//
+//	glm::vec3 normals(nx, ny, nz);
+//	return normals;
+//}
 
 //void displayObject();
 //void drawString(float, float, float, char*);

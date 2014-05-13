@@ -9,7 +9,7 @@ TopDownCamera::TopDownCamera() : Camera(orthographic)
 	mSpeed = 0.5f;
 }
 
-void TopDownCamera::handleMouseMovement(float x, float y)
+void TopDownCamera::handleMouseMovement(int x, int y)
 {
 
 }

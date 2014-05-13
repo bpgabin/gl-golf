@@ -8,39 +8,37 @@ FreeLookCamera::FreeLookCamera() : Camera(perspective)
 	mSpeed = 0.5f;
 }
 
-void FreeLookCamera::handleMouseMovement(float x, float y)
+void FreeLookCamera::handleMouseMovement(int dx, int dy)
 {
-
+    moveCamera(dx * 0.001, dy * 0.001, 0);
 }
 
 void FreeLookCamera::handleKeyboard(char input)
 {
-	if (input == 'w')
+	if (input == 'w') // Go Forward
 	{
-		glm::vec3 direction = mTarget - mPosition;
-		mPosition += glm::normalize(direction) * mSpeed;
-		mTarget += glm::normalize(direction) * mSpeed;
+        moveCamera(mSpeed);
 	}
-	else if (input == 's')
+	else if (input == 's') // Go Backwards
 	{
-		glm::vec3 direction = mTarget - mPosition;
-		mPosition -= glm::normalize(direction) * mSpeed;
-		mTarget -= glm::normalize(direction) * mSpeed;
+        moveCamera(-mSpeed);
 	}
-	else if (input == 'a')
+	else if (input == 'a') // Strafe Left
 	{
-		glm::vec3 forwardDirection = mTarget - mPosition;
-		glm::vec3 direction = glm::cross(forwardDirection, mUp);
-		mPosition -= glm::normalize(direction) * mSpeed;
-		mTarget -= glm::normalize(direction) * mSpeed;
+        strafeCamera(-mSpeed);
 	}
-	else if (input == 'd')
+	else if (input == 'd') // Strafe Right
 	{
-		glm::vec3 forwardDirection = mTarget - mPosition;
-		glm::vec3 direction = glm::cross(forwardDirection, mUp);
-		mPosition += glm::normalize(direction) * mSpeed;
-		mTarget += glm::normalize(direction) * mSpeed;
+        strafeCamera(mSpeed);
 	}
+    else if (input == 'q')
+    {
+        moveCamera(0, mSpeed * 0.25, 0);
+    }
+    else if (input == 'e')
+    {
+        moveCamera(0, -mSpeed * 0.25, 0);
+    }
 	else if (input == 'k')
 	{
 		glm::vec3 radius = mTarget - mPosition;
@@ -78,7 +76,41 @@ void FreeLookCamera::handleKeyboard(char input)
 		mTarget = glm::vec3(radius.x, y, z) + mPosition;
 	}
 }
+
 void FreeLookCamera::setSpeed(float speed)
 {
 	mSpeed = speed;
+}
+
+void FreeLookCamera::moveCamera(float amount)
+{
+    glm::vec3 direction = mTarget - mPosition;
+    mPosition += glm::normalize(direction) * amount;
+    mTarget += glm::normalize(direction) * amount;
+}
+
+void FreeLookCamera::moveCamera(float x, float y, float z)
+{
+    glm::vec3 distance = glm::vec3(x, y, z);
+    mPosition += distance;
+    mTarget += distance;
+}
+
+void FreeLookCamera::moveCamera(glm::vec3 distance)
+{
+    mPosition += distance;
+    mTarget += distance;
+}
+
+void FreeLookCamera::strafeCamera(float amount)
+{
+    glm::vec3 forwardDirection = mTarget - mPosition;
+    glm::vec3 direction = glm::cross(forwardDirection, mUp);
+    mPosition += glm::normalize(direction) * amount;
+    mTarget += glm::normalize(direction) * amount;
+}
+
+void FreeLookCamera::rotateCamera(float x, float y, float z)
+{
+
 }
