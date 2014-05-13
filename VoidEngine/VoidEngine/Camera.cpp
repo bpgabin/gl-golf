@@ -6,6 +6,7 @@ Camera::Camera(ProjectionMode mode = ProjectionMode::perspective)
     // Set Projection Mode
     mMode = mode;
 
+
     // Initialize Camera View Values
     mPosition   = glm::vec3(0.0f, 0.0f, -1.0f);
     mTarget     = glm::vec3(0.0f, 0.0f,  0.0f);
@@ -22,6 +23,9 @@ Camera::Camera(ProjectionMode mode = ProjectionMode::perspective)
     mRight  =  5.0f;
     mTop    =  5.0f;
     mBottom = -5.0f;
+
+	//intialize mouse speed;
+	mSpeed = 0.5f;
 }
 
 glm::mat4 Camera::getViewMatrix() const
@@ -57,7 +61,7 @@ void Camera::handleMouseMovement(int x, int y)
 	// Intentionally left blank.
 }
 
-void Camera::handleKeyboard(char input)
+void Camera::handleKeyboard(char input, float deltaTime)
 {
 	// Intentionally left blank.
 }
@@ -92,3 +96,27 @@ glm::mat4 Camera::getOrthographicMatrix() const
 {
     return glm::ortho(mLeft, mRight, mBottom, mTop);
 }
+
+glm::vec3 Camera::cartesianToSpherical(glm::vec3 cartesianCoordinate)
+{
+	float r = (sqrt(pow(cartesianCoordinate.x, 2) + pow(cartesianCoordinate.y, 2) + pow(cartesianCoordinate.z, 2)));
+
+	float theta = atan2(-cartesianCoordinate.z, cartesianCoordinate.x);
+	float phi = acos(cartesianCoordinate.y / r);
+
+	glm::vec3 sphericalCoordinate(r, theta, phi);
+
+	return sphericalCoordinate;
+}
+
+glm::vec3 Camera::sphericalToCartesian(glm::vec3 sphericalCoordinate)
+{
+	float theta = sphericalCoordinate.y;
+	float phi = sphericalCoordinate.z;
+
+	glm::vec3 cartesianCoordinate(cos(theta)*sin(phi), cos(phi), -sin(theta)*sin(phi));
+
+	return cartesianCoordinate * sphericalCoordinate.x;
+}
+
+

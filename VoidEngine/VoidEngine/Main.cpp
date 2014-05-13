@@ -46,10 +46,9 @@ private:
 	float verticalAngle = 0.0f;
 	const float rotateX = 30.f;
 
-	float speed = 3.0f;
-	float mouseSpeed = 0.5f;
-    bool mouseDown = false;
-    int lastMouseX, lastMouseY;
+	bool mouseDown = false;
+	std::vector<char> keysPressed;
+	int mouse_x, mouse_y;
 
 public:
 	myWindow(string inputFilename)
@@ -60,10 +59,7 @@ public:
 
     virtual void OnRender()
     {
-		// Get deltaTime
-		unsigned oldTimeSinceStart = timeSinceStart;
-		timeSinceStart = timeSinceStart = glutGet(GLUT_ELAPSED_TIME);
-		deltaTime = (float)(timeSinceStart - oldTimeSinceStart) / 1000.0f;
+	
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -95,7 +91,20 @@ public:
 
     virtual void OnIdle()
     {
-      
+		// Get deltaTime
+		unsigned oldTimeSinceStart = timeSinceStart;
+		timeSinceStart = timeSinceStart = glutGet(GLUT_ELAPSED_TIME);
+		deltaTime = (float)(timeSinceStart - oldTimeSinceStart) / 1000.0f;
+
+		if (keysPressed.size() != 0)
+		{
+			for (char keyPressed : keysPressed)
+			{
+				camera->handleKeyboard(keyPressed, deltaTime);
+			}
+			glutPostRedisplay();
+		}
+
     }
 
     virtual void OnInit()
@@ -221,38 +230,45 @@ public:
 
     virtual void OnResize(int w, int h) {}
     virtual void OnClose() {}
-    virtual void OnMouseDown(int button, int x, int y)
-    {
-        mouseDown = true;
-        lastMouseX = x;
-        lastMouseY = y;
-    }
+    virtual void OnMouseDown(int button, int x, int y) 
+	{
+		mouseDown = true;
+		mouse_x = x;
+		mouse_y = y;
+	}
 	
-    virtual void OnMouseMove(int x, int y)
-    {
-        if (mouseDown)
-        {
-
-            float dx = (x - lastMouseX);
-            float dy = (y - lastMouseY);
-
-            lastMouseX = x;
-            lastMouseY = y;
-
-            camera->handleMouseMovement(dx, dy);
-
-            glutPostRedisplay();
-        }
+	virtual void OnMouseMove(int x, int y) {
+		if (mouseDown)
+		{
+			float x_ratchet = glutGet(GLUT_WINDOW_WIDTH) / 100.0;
+			float y_ratchet = glutGet(GLUT_WINDOW_HEIGHT) / 100.0;
+			float dx = (x - mouse_x) / x_ratchet;
+			float dy = (y - mouse_y) / y_ratchet;
+			mouse_x = x;
+			mouse_y = y;
+			camera->handleMouseMovement(dx, dy);
+			glutPostRedisplay();
+		}
 	}
 	
 	
     virtual void OnMouseUp(int button, int x, int y)
+	{
+		int dx = x - mouse_x;
+		int dy = y - mouse_y;
+		mouse_x = x;
+		mouse_y = y;
+		camera->handleMouseMovement(dx, dy);
+		glutPostRedisplay();
+		mouseDown = false;
+	}
+    
     {
         mouseDown = false;
         glutPostRedisplay();
     }
     
-    virtual void OnMouseWheel(int nWheelNumber, int nDirection, int x, int y) {}
+	virtual void OnMouseWheel(int nWheelNumber, int nDirection, int x, int y) {}
 
     virtual void OnKeyDown(int nKey, char cAscii)
     {
@@ -273,18 +289,31 @@ public:
 		else if (cAscii == '3') // 3
 		{
 			camera = &thirdPersonCamera;
-            glutPostRedisplay();
+			glutPostRedisplay();
 		}
 		else
 		{
-			camera->handleKeyboard(cAscii);
-			glutPostRedisplay();
+			bool keyFound = false;
+			for (std::vector<char>::iterator c = keysPressed.begin(); c != keysPressed.end(); c++)
+			{
+				if (*c == cAscii)
+				{
+					keyFound = true;
+					break;
+				}
+			}
+			if (!keyFound)
+			{
+				keysPressed.push_back(cAscii);
+			}
 		}
+
     }
 	
 	
+	
     virtual void OnKeyUp(int nKey, char cAscii)
-    {
+    {	
         if (cAscii == 'f')
         {
             SetFullscreen(true);
@@ -293,6 +322,17 @@ public:
         {
             SetFullscreen(false);
         }
+		else
+		{
+			for (std::vector<char>::iterator c = keysPressed.begin(); c != keysPressed.end(); c++)
+			{
+				if (*c == cAscii)
+				{
+					keysPressed.erase(c);
+					break;
+				}
+			}
+		}
     };
 };
 

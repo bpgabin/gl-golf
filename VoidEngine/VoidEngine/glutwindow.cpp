@@ -28,7 +28,7 @@ glutWindow::glutWindow(void)
    
    //-------------------------------------------
    // #TODO: Use Parameters to setup this stuff: 
-   glutInitWindowSize(640, 480);
+   glutInitWindowSize(800, 600);
    glutInitWindowPosition ( 100, 100 );
    glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
    //--------------------------------------------
@@ -315,8 +315,8 @@ void  glutWindow::SetFullscreen(bool bFullscreen)
    }
    else
    {
-      int w = 640; //glutGet(GLUT_WINDOW_WIDTH);
-      int h = 480; //glutGet(GLUT_WINDOW_HEIGHT);
+      int w = 800; //glutGet(GLUT_WINDOW_WIDTH);
+      int h = 600; //glutGet(GLUT_WINDOW_HEIGHT);
       int x = 0; //glutGet(GLUT_WINDOW_X);
       int y = 0; //glutGet(GLUT_WINDOW_Y);
       
