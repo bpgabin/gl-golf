@@ -4,7 +4,7 @@
 ThirdPersonCamera::ThirdPersonCamera() : Camera(perspective)
 {
 	
-	mPosition = 
+	//mPosition = 
 	// Initial Values
 	//mSpeed = 0.5f;
 }
@@ -14,7 +14,7 @@ void ThirdPersonCamera::handleMouseMovement(float x, float y)
 
 }
 
-void ThirdPersonCamera::handleKeyboard(char input)
+void ThirdPersonCamera::handleKeyboard(char input, float deltaTime)
 {
 	if (input == 'w')
 	{

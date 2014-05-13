@@ -51,10 +51,10 @@ private:
 	float verticalAngle = 0.0f;
 	const float rotateX = 30.f;
 
-	float speed = 3.0f; // 3 units / second
-	float mouseSpeed = 0.5f;
-	float yrotrad = 0, xrotrad = 0, xpos = 0,ypos = 0, zpos = 0, xrot = 0, yrot = 0; 
-	
+	bool mouseDown = false;
+	std::vector<char> keysPressed;
+	int mouse_x, mouse_y;
+
 public:
 	myWindow(string inputFilename)
     {
@@ -64,10 +64,7 @@ public:
 
     virtual void OnRender()
     {
-		// Get deltaTime
-		unsigned oldTimeSinceStart = timeSinceStart;
-		timeSinceStart = timeSinceStart = glutGet(GLUT_ELAPSED_TIME);
-		deltaTime = (float)(timeSinceStart - oldTimeSinceStart) / 1000.0f;
+	
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -88,6 +85,7 @@ public:
         //    glDrawArrays(GL_TRIANGLE_FAN, i * 4, 4);
         //}
         //glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, (void*)0);
+		glutWireSphere(1,16,16);
         shader->end();
 
         glutSwapBuffers();
@@ -95,7 +93,20 @@ public:
 
     virtual void OnIdle()
     {
-      
+		// Get deltaTime
+		unsigned oldTimeSinceStart = timeSinceStart;
+		timeSinceStart = timeSinceStart = glutGet(GLUT_ELAPSED_TIME);
+		deltaTime = (float)(timeSinceStart - oldTimeSinceStart) / 1000.0f;
+
+		if (keysPressed.size() != 0)
+		{
+			for (char keyPressed : keysPressed)
+			{
+				camera->handleKeyboard(keyPressed, deltaTime);
+			}
+			glutPostRedisplay();
+		}
+
     }
 
     virtual void OnInit()
@@ -168,30 +179,40 @@ public:
 
     virtual void OnResize(int w, int h) {}
     virtual void OnClose() {}
-    virtual void OnMouseDown(int button, int x, int y) {}
+    virtual void OnMouseDown(int button, int x, int y) 
+	{
+		mouseDown = true;
+		mouse_x = x;
+		mouse_y = y;
+	}
+	
 	virtual void OnMouseMove(int x, int y) {
-
-		camera->handleMouseMovement(x, y);
-		
-		//// Compute new orientation
-		//
-		//horizontalAngle += mouseSpeed  * deltaTime * float(800/2 - x);
-		//verticalAngle += mouseSpeed * deltaTime * float(600/2 - y);
-		//// Direction : Spherical coordinates to Cartesian coordinates conversion
-		//direction = glm::vec3(
-		//	cos(verticalAngle) * sin(horizontalAngle),
-		//	sin(verticalAngle),
-		//	cos(verticalAngle) * cos(horizontalAngle)
-		//	);
-		//camera.setPosition((position));
-		//camera.setTarget(direction);
-		//glutPostRedisplay();
-
+		if (mouseDown)
+		{
+			float x_ratchet = glutGet(GLUT_WINDOW_WIDTH) / 100.0;
+			float y_ratchet = glutGet(GLUT_WINDOW_HEIGHT) / 100.0;
+			float dx = (x - mouse_x) / x_ratchet;
+			float dy = (y - mouse_y) / y_ratchet;
+			mouse_x = x;
+			mouse_y = y;
+			camera->handleMouseMovement(dx, dy);
+			glutPostRedisplay();
+		}
 	}
 	
 	
-    virtual void OnMouseUp(int button, int x, int y) {}
-    virtual void OnMouseWheel(int nWheelNumber, int nDirection, int x, int y) {}
+    virtual void OnMouseUp(int button, int x, int y)
+	{
+		int dx = x - mouse_x;
+		int dy = y - mouse_y;
+		mouse_x = x;
+		mouse_y = y;
+		camera->handleMouseMovement(dx, dy);
+		glutPostRedisplay();
+		mouseDown = false;
+	}
+    
+	virtual void OnMouseWheel(int nWheelNumber, int nDirection, int x, int y) {}
 
     virtual void OnKeyDown(int nKey, char cAscii)
     {
@@ -207,86 +228,41 @@ public:
 		else if (cAscii == 50)
 		{
 			camera = &topDownCamera;
-			
 			glutPostRedisplay();
 		}
 		else if (cAscii == 51)
 		{
 			camera = &thirdPersonCamera;
-
+			glutPostRedisplay();
 		}
 		else
 		{
-			camera->handleKeyboard(cAscii);
-			glutPostRedisplay();
+			bool keyFound = false;
+			for (std::vector<char>::iterator c = keysPressed.begin(); c != keysPressed.end(); c++)
+			{
+				if (*c == cAscii)
+				{
+					keyFound = true;
+					break;
+				}
+			}
+			if (!keyFound)
+			{
+				keysPressed.push_back(cAscii);
+			}
 		}
-		//else if (cAscii == 'w')
+		//else
 		//{
-		//	
-		//	position += direction * deltaTime * speed;
-		//	camera.setPosition(position);
-		//	camera.setTarget(position + direction);
+		//	camera->handleKeyboard(cAscii);
 		//	glutPostRedisplay();
 		//}
-		//else if (cAscii == 's')
-		//{
-		//
-		//	position -= direction * deltaTime * speed;
-		//	camera.setPosition(position);
-		//	camera.setTarget(position + direction);
-		//	glutPostRedisplay();
-		//}
-		//else if (cAscii == 'd')
-		//{
-		//	// Right vector
-		//	glm::vec3 right = glm::vec3(
-		//		sin(horizontalAngle - 3.14f / 2.0f),
-		//		0,
-		//		cos(horizontalAngle - 3.14f / 2.0f)
-		//		);
-		//
-		//	position += direction * right * 30.f ;
-		//	camera.setPosition(position);
-		//	camera.setTarget(position + direction);
-		//	glutPostRedisplay();
-		//}
-		//else if (cAscii == 'a')
-		//{
-		//	
-		//	// Right vector
-		//	glm::vec3 right = glm::vec3(
-		//		sin(horizontalAngle - 3.14f / 2.0f),
-		//		0,
-		//		cos(horizontalAngle - 3.14f / 2.0f)
-		//		);
-		//
-		//	position -= direction * right  * 30.f ;
-		//	camera.setPosition(position);
-		//	camera.setTarget(position + direction);
-		//	glutPostRedisplay();
-		//}
-		//else if (cAscii == 'y')
-		//{
-		//	yrot += 1;
-		//	if (yrot >360) yrot -= 360;
-		//
-		//	yrotrad = (yrot / 180 * 3.141592654f);
-		//	xpos -= float(sin(yrotrad));
-		//	zpos += float(cos(yrotrad));
-		//	//ypos += float(sin(xrotrad));
-		//	glm::vec3 rotation = glm::vec3(xpos, ypos, zpos);
-		//	camera.setTarget(rotation + direction);
-		//	//camera.setTarget(position + rotation);
-		//
-		//	
-		//
-		//	glutPostRedisplay();
-		//}
+
     }
 	
 	
+	
     virtual void OnKeyUp(int nKey, char cAscii)
-    {
+    {	
         if (cAscii == 'f')
         {
             SetFullscreen(true);
@@ -295,6 +271,17 @@ public:
         {
             SetFullscreen(false);
         }
+		else
+		{
+			for (std::vector<char>::iterator c = keysPressed.begin(); c != keysPressed.end(); c++)
+			{
+				if (*c == cAscii)
+				{
+					keysPressed.erase(c);
+					break;
+				}
+			}
+		}
     };
 };
 

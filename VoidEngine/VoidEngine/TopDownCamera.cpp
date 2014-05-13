@@ -11,38 +11,17 @@ TopDownCamera::TopDownCamera() : Camera(orthographic)
 
 void TopDownCamera::handleMouseMovement(float x, float y)
 {
+	float w = glutGet(GLUT_WINDOW_WIDTH);
+	float h = glutGet(GLUT_WINDOW_HEIGHT);
+	glm::vec3 windowCoordinates = glm::vec3(x,1.0f,y);
+	glm::vec4 viewport = glm::vec4(0.0f, 0.0f, w, h);
+	glm::vec3 worldCoordinates = glm::unProject(windowCoordinates, getViewMatrix(), getProjectionMatrix(), viewport);
+	glm::vec3 direction = worldCoordinates - mPosition;
+	mTarget = glm::normalize(direction) + mPosition;
 
 }
 
-void TopDownCamera::handleKeyboard(char input)
-{
-	if (input == 'w')
-	{
-		mPosition -= glm::normalize(mUp) * mSpeed;
-		mTarget -= glm::normalize(mUp) * mSpeed;
-	}
-	else if (input == 's')
-	{
-	
-		mPosition += glm::normalize(mUp) * mSpeed;
-		mTarget += glm::normalize(mUp) * mSpeed;
-	}
-	else if (input == 'a')
-	{
-		glm::vec3 forwardDirection = mTarget - mPosition;
-		glm::vec3 direction = glm::cross(forwardDirection, mUp);
-		mPosition += glm::normalize(direction) * mSpeed;
-		mTarget += glm::normalize(direction) * mSpeed;
-	}
-	else if (input == 'd')
-	{
-		glm::vec3 forwardDirection = mTarget - mPosition;
-		glm::vec3 direction = glm::cross(forwardDirection, mUp);
-		mPosition -= glm::normalize(direction) * mSpeed;
-		mTarget -= glm::normalize(direction) * mSpeed;
-	}
-	
-}
+
 void TopDownCamera::setSpeed(float speed)
 {
 	mSpeed = speed;

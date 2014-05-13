@@ -1,5 +1,7 @@
 #pragma once
 #include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+
 
 class Camera
 {
@@ -19,12 +21,22 @@ public:
     void            setTarget(glm::vec3);
     void            setUp(glm::vec3);
 	virtual void	handleMouseMovement(float x, float y);
-	virtual void	handleKeyboard(char input);
+	virtual void	handleKeyboard(char input, float deltaTime);
 
     // Projection Functions
     void            switchProjectionMode(ProjectionMode);
     void            setPerspectiveMatrix(float fov, float aspect, float near, float far);
     void            setOrthographicMatrix(float left, float right, float bottom, float top);
+
+	// converts cartesian cordinates to spherical and vice versa
+	glm::vec3		cartesianToSpherical(glm::vec3 cartesianCoordinate);
+	glm::vec3		sphericalToCartesian(glm::vec3 sphericalCoordinate);
+
+	//camera movement
+	void		moveForward();
+	void		moveBackward();
+	void		strafeLeft();
+	void		strafeRight();
 
 protected:
     glm::mat4       getPerspectiveMatrix() const;
@@ -50,4 +62,7 @@ protected:
     float           mRight;
     float           mTop;
     float           mBottom;
+
+	//mouse speed
+	float			mSpeed;
 };

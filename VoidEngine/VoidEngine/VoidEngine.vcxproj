@@ -71,27 +71,34 @@
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="FileHandling.cpp" />
+    <ClCompile Include="FreeLookCamera.cpp" />
     <ClCompile Include="glApplication.cpp" />
     <ClCompile Include="glsl.cpp" />
     <ClCompile Include="glutwindow.cpp" />
     <ClCompile Include="glWindow.cpp" />
+    <ClCompile Include="GolfBall.cpp" />
     <ClCompile Include="Level.cpp" />
     <ClCompile Include="Light.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="ThirdPersonCamera.cpp" />
     <ClCompile Include="Tile.cpp" />
+    <ClCompile Include="TopDownCamera.cpp" />
     <ClCompile Include="Wall.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.hpp" />
     <ClInclude Include="FileHandling.hpp" />
+    <ClInclude Include="FreeLookCamera.hpp" />
     <ClInclude Include="glApplication.h" />
     <ClInclude Include="glsl.h" />
     <ClInclude Include="glutwindow.h" />
     <ClInclude Include="glWindow.h" />
+    <ClInclude Include="GolfBall.hpp" />
     <ClInclude Include="Level.hpp" />
     <ClInclude Include="Light.hpp" />
+    <ClInclude Include="ThirdPersonCamera.hpp" />
     <ClInclude Include="Tile.hpp" />
-    <ClInclude Include="TopDownCamera.h" />
+    <ClInclude Include="TopDownCamera.hpp" />
     <ClInclude Include="Wall.hpp" />
   </ItemGroup>
   <ItemGroup>
