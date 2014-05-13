@@ -28,33 +28,26 @@ protected:
 
 private:
     Level* level;
-    GLuint levelTriangleVBO;
-    GLuint levelNormalVBO;
-    GLuint levelElementVBO;
-    GLuint ballTrianglVBO;
-    GLuint ballNormalVBO;
-    GLuint ballElementVBO;
+
 	Camera* camera;
     FreeLookCamera freeLookCamera;
 	TopDownCamera topDownCamera;
 	ThirdPersonCamera thirdPersonCamera;
-	
-    GLuint vertsCount;
+    const int numberOfObjects = 3;
+    GLuint vao[3], buffers[9], elementCounts[3];
+    std::vector<glm::vec4> diffuseColors, ambientColors;
+
     unsigned timeSinceStart;
     float cameraAngle;
     float cameraRadius;
-    GLuint elementCount;
 	
 	float deltaTime;
-	// horizontal angle : toward -Z
 	float horizontalAngle = 3.14f;
-	// vertical angle : 0, look at the horizon
 	float verticalAngle = 0.0f;
 	const float rotateX = 30.f;
 
-	float speed = 3.0f; // 3 units / second
+	float speed = 3.0f;
 	float mouseSpeed = 0.5f;
-	float yrotrad = 0, xrotrad = 0, xpos = 0,ypos = 0, zpos = 0, xrot = 0, yrot = 0; 
     bool mouseDown = false;
     int lastMouseX, lastMouseY;
 
@@ -63,7 +56,6 @@ public:
     {
         // Load Level
         level = FileHandling::ReadFile(inputFilename);
-        std::cout << "test!\n";
     }
 
     virtual void OnRender()
@@ -80,17 +72,22 @@ public:
         glm::mat4 projectionMatrix = camera->getProjectionMatrix();
         glm::mat4 viewMatrix = camera->getViewMatrix();
         glm::mat4 modelMatrix = glm::mat4();
-        glm::vec4 diffuseMaterial = glm::vec4(0.0, 0.5, 0.0, 1.0);
         glm::vec3 lightPosition = glm::vec3(7.0f, 2.0f, 7.0f);
         
         shader->setUniformMatrix4fv("pMatrix", 1, GL_FALSE, glm::value_ptr(projectionMatrix));
         shader->setUniformMatrix4fv("vMatrix", 1, GL_FALSE, glm::value_ptr(viewMatrix));
         shader->setUniformMatrix4fv("mMatrix", 1, GL_FALSE, glm::value_ptr(modelMatrix));
-        shader->setUniform4fv("diffuseMaterialColor", 1, &diffuseMaterial[0]);
         shader->setUniform3fv("lightPosition", 1, &lightPosition[0]);
 
-        glDrawElements(GL_TRIANGLES, elementCount, GL_UNSIGNED_INT, (void*)0);
-        
+        for (int i = 0; i < numberOfObjects; i++)
+        {
+            shader->setUniform4fv("diffuseMaterialColor", 1, &diffuseColors[i][0]);
+            shader->setUniform4fv("ambientMaterialColor", 1, &ambientColors[i][0]);
+            glBindVertexArray(vao[i]);
+            glDrawElements(GL_TRIANGLES, elementCounts[i], GL_UNSIGNED_INT, (void*)0);
+            glBindVertexArray(0);
+        }
+
         shader->end();
 
         glutSwapBuffers();
@@ -105,6 +102,14 @@ public:
     {
 		// Set-up Camera
 		camera = &freeLookCamera;
+
+        // Set-up colors
+        diffuseColors.push_back(glm::vec4(0.0, 0.5, 0.0, 1.0));
+        diffuseColors.push_back(glm::vec4(0.5, 0.0, 0.0, 1.0));
+        diffuseColors.push_back(glm::vec4(0.5, 0.5, 0.5, 1.0));
+        ambientColors.push_back(glm::vec4(0.0, 0.2, 0.0, 1.0));
+        ambientColors.push_back(glm::vec4(0.2, 0.0, 0.0, 1.0));
+        ambientColors.push_back(glm::vec4(0.2, 0.2, 0.2, 1.0));
 
         // Get Time
         timeSinceStart = glutGet(GLUT_ELAPSED_TIME);
@@ -123,36 +128,95 @@ public:
         std::vector<glm::vec3> verts = level->getTilesVertices();
         std::vector<glm::vec3> normals = level->getTilesNormals();
         std::vector<GLuint> elements = level->getTilesIndices();
-        elementCount = elements.size();
+        elementCounts[0] = elements.size();
 
-        // Create and Manage Buffers
-        // Create a new VBO and use the variable id to store the VBO id
-        glGenBuffers(1, &levelTriangleVBO);
-        glGenBuffers(1, &levelNormalVBO);
-        glGenBuffers(1, &levelElementVBO);
-        
-        // Make the new VBO active
-        glBindBuffer(GL_ARRAY_BUFFER, levelTriangleVBO);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * verts.size(), verts.data(), GL_STATIC_DRAW);
+        // Get Wall Data
+        std::vector<glm::vec3> wallVerts = level->getWallsVertices();
+        std::vector<glm::vec3> wallNormals = level->getWallsNormals();
+        std::vector<GLuint> wallElements = level->getWallsIndices();
+        elementCounts[1] = wallElements.size();
 
-        glBindBuffer(GL_ARRAY_BUFFER, levelNormalVBO);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * normals.size(), normals.data(), GL_STATIC_DRAW);
-
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, levelElementVBO);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint)* elements.size(), elements.data(), GL_STATIC_DRAW);
+        // Get Ball Data
+        GolfBall* golfBall = level->getGolfBall();
+        std::vector<glm::vec3> ballVerts = golfBall->getVertices();
+        std::vector<glm::vec3> ballNormals = golfBall->getNormals();
+        std::vector<GLuint> ballElements = golfBall->getIndices();
+        elementCounts[2] = ballElements.size();
 
         GLuint vPosition = glGetAttribLocation(shader->GetProgramObject(), "in_Position");
-        glEnableVertexAttribArray(vPosition);
-
         GLuint vNormal = glGetAttribLocation(shader->GetProgramObject(), "in_Normal");
+
+        glGenVertexArrays(numberOfObjects, vao);
+        glGenBuffers(numberOfObjects * 3, buffers);
+
+        // Tiles
+        glBindVertexArray(vao[0]);
+
+        glBindBuffer(GL_ARRAY_BUFFER, buffers[0]);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * verts.size(), verts.data(), GL_STATIC_DRAW);
+
+        glBindBuffer(GL_ARRAY_BUFFER, buffers[1]);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * normals.size(), normals.data(), GL_STATIC_DRAW);
+
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffers[2]);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * elements.size(), elements.data(), GL_STATIC_DRAW);
+
+        glEnableVertexAttribArray(vPosition);
         glEnableVertexAttribArray(vNormal);
 
-        // Specify that our coordinate data is going into attribute index 0(shaderAttribute), and contains three floats per vertex
-        glBindBuffer(GL_ARRAY_BUFFER, levelTriangleVBO);
+        glBindBuffer(GL_ARRAY_BUFFER, buffers[0]);
         glVertexAttribPointer(vPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
-        
-        glBindBuffer(GL_ARRAY_BUFFER, levelNormalVBO);
+
+        glBindBuffer(GL_ARRAY_BUFFER, buffers[1]);
         glVertexAttribPointer(vNormal, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+        glBindVertexArray(0);
+
+        // Walls
+        glBindVertexArray(vao[1]);
+
+        glBindBuffer(GL_ARRAY_BUFFER, buffers[3]);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * wallVerts.size(), wallVerts.data(), GL_STATIC_DRAW);
+        
+        glBindBuffer(GL_ARRAY_BUFFER, buffers[4]);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * wallNormals.size(), wallNormals.data(), GL_STATIC_DRAW);
+        
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffers[5]);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * wallElements.size(), wallElements.data(), GL_STATIC_DRAW);
+
+        glEnableVertexAttribArray(vPosition);
+        glEnableVertexAttribArray(vNormal);
+
+        glBindBuffer(GL_ARRAY_BUFFER, buffers[3]);
+        glVertexAttribPointer(vPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+        glBindBuffer(GL_ARRAY_BUFFER, buffers[4]);
+        glVertexAttribPointer(vNormal, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+        glBindVertexArray(0);
+
+        // Ball
+        glBindVertexArray(vao[2]);
+
+        glBindBuffer(GL_ARRAY_BUFFER, buffers[6]);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * ballVerts.size(), ballVerts.data(), GL_STATIC_DRAW);
+
+        glBindBuffer(GL_ARRAY_BUFFER, buffers[7]);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * ballNormals.size(), ballNormals.data(), GL_STATIC_DRAW);
+
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffers[8]);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint)* ballElements.size(), ballElements.data(), GL_STATIC_DRAW);
+
+        glEnableVertexAttribArray(vPosition);
+        glEnableVertexAttribArray(vNormal);
+
+        glBindBuffer(GL_ARRAY_BUFFER, buffers[6]);
+        glVertexAttribPointer(vPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+        glBindBuffer(GL_ARRAY_BUFFER, buffers[7]);
+        glVertexAttribPointer(vNormal, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+        glBindVertexArray(0);
     }
 
     virtual void OnResize(int w, int h) {}

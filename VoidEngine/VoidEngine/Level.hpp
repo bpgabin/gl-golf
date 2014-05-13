@@ -1,8 +1,10 @@
+#pragma once
 #include <vector>
 #include <GL/freeglut.h>
 #include <glm/glm.hpp>
 #include "Tile.hpp"
 #include "Wall.hpp"
+#include "GolfBall.hpp"
 
 // Represents a complete mini-golf level.
 class Level
@@ -39,11 +41,14 @@ public:
     std::vector<glm::vec3>  getCupNormals() const;
     std::vector<GLuint>     getCupIndices() const;
 
+    GolfBall*               getGolfBall();
+
     void                    setTiles(std::vector<Tile> tiles);
     void                    setTee(LevelObject tee);
     void                    setCup(LevelObject cup);
 
 private:
+    void                    processVerts(std::vector<glm::vec3> &points, std::vector<glm::vec3> &verts, std::vector<GLuint> &indices);
     void                    processTiles();
     void                    processTee();
     void                    processCup();
@@ -55,6 +60,7 @@ private:
     std::vector<Wall>       mWalls;
     LevelObject			    mTee;
     LevelObject			    mCup;
+    GolfBall                mGolfBall;
 
     std::vector<glm::vec3>  mTilesVertices;
     std::vector<glm::vec3>  mTilesNormals;

@@ -6,17 +6,16 @@ in vec3 lightDir;
 
 // Uniform Variables
 uniform vec4 diffuseMaterialColor;
+uniform vec4 ambientMaterialColor;
 
 // Output Variables
 out vec4 fragColor;
 
 void main() 
 {
-	const vec4 AmbientColor = vec4(0.0, 0.2, 0.0, 1.0);
-
 	vec3 lightV = normalize(lightDir);
 	float diffuseDot = dot(normal, lightV);
 	float diffuseTerm = clamp(diffuseDot, 0.0, 1.0);
 
-    fragColor = AmbientColor + diffuseMaterialColor * diffuseTerm;
+    fragColor = ambientMaterialColor + diffuseMaterialColor * diffuseTerm;
 }
