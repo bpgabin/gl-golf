@@ -6,14 +6,13 @@ Camera::Camera(ProjectionMode mode = ProjectionMode::perspective)
     // Set Projection Mode
     mMode = mode;
 
-
     // Initialize Camera View Values
     mPosition   = glm::vec3(0.0f, 0.0f, -1.0f);
     mTarget     = glm::vec3(0.0f, 0.0f,  0.0f);
     mUp         = glm::vec3(0.0f, 1.0f,  0.0f);
 
     // Initialiize Perspective Values
-    mFOV    = 25.0f;
+    mFOV    = 60.0f;
     mAspect = 4.0f / 3.0f;
     mNear   = 0.3f;
     mFar    = 200.0f;
@@ -64,6 +63,11 @@ void Camera::handleMouseMovement(float x, float y)
 void Camera::handleKeyboard(char input, float deltaTime)
 {
 	// Intentionally left blank.
+}
+
+Camera::ProjectionMode Camera::getProjectionMode() const
+{
+    return mMode;
 }
 
 void Camera::switchProjectionMode(ProjectionMode mode)

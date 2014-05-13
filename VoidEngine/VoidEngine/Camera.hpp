@@ -24,6 +24,7 @@ public:
 	virtual void	handleKeyboard(char input, float deltaTime);
 
     // Projection Functions
+    ProjectionMode  getProjectionMode() const;
     void            switchProjectionMode(ProjectionMode);
     void            setPerspectiveMatrix(float fov, float aspect, float near, float far);
     void            setOrthographicMatrix(float left, float right, float bottom, float top);

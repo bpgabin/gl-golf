@@ -1,16 +1,18 @@
 #define _USE_MATH_DEFINES
 #include <cmath>
+#include <glm/gtc/matrix_transform.hpp>
 #include "GolfBall.hpp"
 
 
 GolfBall::GolfBall(glm::vec3 position, float radius = 1.0, unsigned rings = 10, unsigned sectors = 10)
 {
     mPosition = position;
+    mRadius = radius;
 
     // Create Vertices
-    const float R = 1.0 / (float)(rings - 1);
-    const float S = 1.0 / (float)(sectors - 1);
-    int r, s;
+    const float R = 1.0f / (float)(rings - 1);
+    const float S = 1.0f / (float)(sectors - 1);
+    unsigned r, s;
 
     mVertices.resize(rings * sectors * 3);
     mNormals.resize(rings * sectors * 3);
@@ -20,9 +22,9 @@ GolfBall::GolfBall(glm::vec3 position, float radius = 1.0, unsigned rings = 10, 
     {
         for (s = 0; s < sectors; s++)
         {
-            const float y = sin(-M_PI_2 + M_PI * r * R);
-            const float x = cos(2 * M_PI * s * S) * sin(M_PI * r * R);
-            const float z = sin(2 * M_PI * s * S) * sin(M_PI * r * R);
+            const double y = sin(-M_PI_2 + M_PI * r * R);
+            const double x = cos(2 * M_PI * s * S) * sin(M_PI * r * R);
+            const double z = sin(2 * M_PI * s * S) * sin(M_PI * r * R);
             
             *v++ = glm::vec3(x * radius, y * radius, z * radius);
             *n++ = glm::vec3(x, y, z);
@@ -49,6 +51,21 @@ std::vector<GLuint> GolfBall::getIndices() const
 glm::vec3 GolfBall::getPosition() const
 {
     return mPosition;
+}
+
+glm::mat4 GolfBall::getModelMatrix() const
+{
+    return glm::translate(glm::mat4(), mPosition + glm::vec3(0.0f, mRadius, 0.0f));
+}
+
+void GolfBall::setPosition(glm::vec3 position)
+{
+    mPosition = position;
+}
+
+void GolfBall::moveBall(glm::vec3 distance)
+{
+    mPosition += distance;
 }
 
 void GolfBall::pushIndices(int sectors, int r, int s)

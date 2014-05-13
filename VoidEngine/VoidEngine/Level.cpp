@@ -1,14 +1,20 @@
+#define _USE_MATH_DEFINES
+#include <cmath>
 #include "Level.hpp"
 
-Level::Level(std::vector<Tile> tiles, LevelObject tee, LevelObject cup) : mGolfBall(glm::vec3(0, 0, 0), 0.05, 10, 10)
+Level::Level(std::vector<Tile> tiles, LevelObject tee, LevelObject cup) : mGolfBall(glm::vec3(0.0f, 0.0f, 0.0f), 0.05f, 10, 10)
 {
     // Store level information
     mTiles = tiles;
     mTee = tee;
     mCup = cup;
 
+    mGolfBall.setPosition(mTee.position);
+
     // Process level information
     processTiles();
+    processTee();
+    processCup();
 }
 
 Level::~Level()
@@ -169,14 +175,14 @@ void Level::processTiles()
                 if (j + 1 == neighbors.size())
                 {
                     wall.push_back(points[0]);
-                    wall.push_back(points[0] + glm::vec3(0.0, 0.25, 0.0));
+                    wall.push_back(points[0] + glm::vec3(0.0, 0.15, 0.0));
                 }
                 else
                 {
                     wall.push_back(points[j + 1]);
-                    wall.push_back(points[j + 1] + glm::vec3(0.0, 0.25, 0.0));
+                    wall.push_back(points[j + 1] + glm::vec3(0.0, 0.15, 0.0));
                 }
-                wall.push_back(points[j] + glm::vec3(0.0, 0.25, 0.0));
+                wall.push_back(points[j] + glm::vec3(0.0, 0.15, 0.0));
                 processVerts(wall, mWallsVertices, mWallsIndices);
 
                 // Generate and store the normals for the wall
@@ -235,10 +241,49 @@ GLuint Level::checkIndice(std::vector<glm::vec3> &verts, glm::vec3 point)
 
 void Level::processTee()
 {
+    // Calculate Points
+    std::vector<glm::vec3> points;
+    points.push_back(mTee.position - glm::vec3(-0.1, -0.01, -0.1));
+    points.push_back(mTee.position - glm::vec3( 0.1, -0.01, -0.1));
+    points.push_back(mTee.position - glm::vec3( 0.1, -0.01,  0.1));
+    points.push_back(mTee.position - glm::vec3(-0.1, -0.01,  0.1));
 
+    // Process Vertices
+    processVerts(points, mTeeVertices, mTeeIndices);
+
+    // Calculate Normal
+    glm::vec3 normal = calculateNormal(points);
+    mTeeNormals.push_back(normal);
+    mTeeNormals.push_back(normal);
+    mTeeNormals.push_back(normal);
+    mTeeNormals.push_back(normal);
 }
 
 void Level::processCup()
 {
+    std::vector<glm::vec3> points;
+    points.push_back(mCup.position + glm::vec3(0.0, 0.01, 0.0));
+    // Create Vertices
+    for (int i = 0; i < 10; i++)
+    {
+        double x = sin((2 * M_PI / 10.0) * i) * 0.1;
+        double z = cos((2 * M_PI / 10.0) * i) * 0.1;
+        glm::vec3 point(x + mCup.position.x, mCup.position.y + 0.01, z + mCup.position.z);
+        points.push_back(point);
+    }
+    
+    double x = sin(0) * 0.1;
+    double z = cos(0) * 0.1;
+    glm::vec3 point(x + mCup.position.x, mCup.position.y + 0.01, z + mCup.position.z);
+    points.push_back(point);
+    
+    // Process Vertices
+    processVerts(points, mCupVertices, mCupIndices);
 
+    // Calculate Normal
+    glm::vec3 normal = calculateNormal(points);
+    for (unsigned i = 0; i < points.size(); i++)
+    {
+        mCupNormals.push_back(normal);
+    }
 }
