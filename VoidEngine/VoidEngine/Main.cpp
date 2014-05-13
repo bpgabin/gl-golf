@@ -254,17 +254,14 @@ public:
 	
     virtual void OnMouseUp(int button, int x, int y)
 	{
-		int dx = x - mouse_x;
-		int dy = y - mouse_y;
+        float x_ratchet = glutGet(GLUT_WINDOW_WIDTH) / 100.0;
+        float y_ratchet = glutGet(GLUT_WINDOW_HEIGHT) / 100.0;
+        float dx = (x - mouse_x) / x_ratchet;
+        float dy = (y - mouse_y) / y_ratchet;
 		mouse_x = x;
 		mouse_y = y;
 		camera->handleMouseMovement(dx, dy);
-		glutPostRedisplay();
 		mouseDown = false;
-	}
-    
-    {
-        mouseDown = false;
         glutPostRedisplay();
     }
     

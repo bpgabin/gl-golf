@@ -56,7 +56,7 @@ void Camera::setUp(glm::vec3 up)
     mUp = up;
 }
 
-void Camera::handleMouseMovement(int x, int y)
+void Camera::handleMouseMovement(float x, float y)
 {
 	// Intentionally left blank.
 }

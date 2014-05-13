@@ -11,6 +11,7 @@ public:
 
 private:
 	void			moveCamera(float amount, float deltaTime);
+    void            moveCamera(float xSpeed, float ySpeed, float zSpeed, float deltaTime);
 	void			strafeCamera(float amount, float deltaTime);
 
 private:

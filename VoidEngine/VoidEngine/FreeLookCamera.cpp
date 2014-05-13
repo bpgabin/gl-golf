@@ -10,12 +10,6 @@ FreeLookCamera::FreeLookCamera() : Camera(perspective)
 
 void FreeLookCamera::handleMouseMovement(float x, float y)
 {
-
-	//glm::vec3 windowCoordinates = glm::vec3(x, y, 1.0f);
-	//glm::vec4 viewport = glm::vec4(0.0f, 0.0f, 800.0f, 600.0f);
-	//glm::vec3 worldCoordinates = glm::unProject(windowCoordinates, getViewMatrix(), getProjectionMatrix(), viewport);
-
-	
 	glm::vec3 direction = mTarget - mPosition;
 
 	float theta = ((x / 180) * 3.14);
@@ -30,7 +24,6 @@ void FreeLookCamera::handleMouseMovement(float x, float y)
 	worldCoordinates = sphericalToCartesian(spherical);
 
 	mTarget = worldCoordinates + mPosition;
-
 }
 
 void FreeLookCamera::handleKeyboard(char input, float deltaTime)
@@ -51,6 +44,14 @@ void FreeLookCamera::handleKeyboard(char input, float deltaTime)
 	{
 		strafeCamera(-mSpeed, deltaTime);
 	}
+    else if (input == 'q') // Go Up
+    {
+        moveCamera(0.0, mSpeed, 0.0, deltaTime);
+    }
+    else if (input == 'e') // Go Down
+    {
+        moveCamera(0.0, -mSpeed, 0.0, deltaTime);
+    }
 }
 
 void FreeLookCamera::setSpeed(float speed)
@@ -71,4 +72,11 @@ void FreeLookCamera::strafeCamera(float amount, float deltaTime)
 	glm::vec3 direction = glm::cross(forwardDirection, mUp);
 	mPosition -= glm::normalize(direction) * amount * deltaTime;
 	mTarget -= glm::normalize(direction) * amount * deltaTime;
+}
+
+void FreeLookCamera::moveCamera(float xSpeed, float ySpeed, float zSpeed, float deltaTime)
+{
+    glm::vec3 distance = glm::vec3(xSpeed, ySpeed, zSpeed);
+    mPosition += distance * deltaTime;
+    mTarget += distance * deltaTime;
 }
