@@ -1,5 +1,6 @@
 #pragma once
 #include "Camera.hpp"
+#include "GolfBall.hpp"
 
 class ThirdPersonCamera : public Camera
 {
@@ -11,4 +12,5 @@ public:
 
 private:
 	float			mSpeed;
+	GolfBall		ball;
 };

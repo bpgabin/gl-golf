@@ -3,6 +3,12 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include "GolfBall.hpp"
 
+GolfBall::GolfBall()
+{
+	//not sure what to put for default
+
+}
+
 
 GolfBall::GolfBall(glm::vec3 position, float radius = 1.0, unsigned rings = 10, unsigned sectors = 10)
 {

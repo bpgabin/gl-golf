@@ -11,6 +11,23 @@ ThirdPersonCamera::ThirdPersonCamera() : Camera(perspective)
 
 void ThirdPersonCamera::handleMouseMovement(float x, float y)
 {
+	glm::vec3 direction = mTarget - mPosition;
+
+	float theta = ((x / 180) * 3.14);
+	float phi = ((y / 180) * 3.14);
+
+	glm::vec3 spherical = cartesianToSpherical(direction);
+
+	spherical.y = spherical.y - theta;
+	spherical.z = spherical.z + phi;
+
+	glm::vec3 worldCoordinates;
+	worldCoordinates = sphericalToCartesian(spherical);
+
+
+	//mPosition = ball.getPosition() - glm::vec3(0.2f,0,0.2f);
+	mPosition = worldCoordinates + ball.getPosition();
+	mTarget = ball.getPosition();
 
 }
 

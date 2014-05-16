@@ -22,12 +22,13 @@ public:
     void            setUp(glm::vec3);
 	virtual void	handleMouseMovement(float x, float y);
     virtual void	handleKeyboard(char input, float deltaTime);
+	virtual void	handleMouseWheel(int nWheelNumber, int nDirection);//this is what i was working
 
     // Projection Functions
     ProjectionMode  getProjectionMode() const;
     void            switchProjectionMode(ProjectionMode);
     void            setPerspectiveMatrix(float fov, float aspect, float near, float far);
-    void            setOrthographicMatrix(float left, float right, float bottom, float top);
+    void            setOrthographicMatrix(float left, float right, float bottom, float top, float near, float far);
 
 	// converts cartesian cordinates to spherical and vice versa
 	glm::vec3		cartesianToSpherical(glm::vec3 cartesianCoordinate);
@@ -63,6 +64,8 @@ protected:
     float           mRight;
     float           mTop;
     float           mBottom;
+	float           zNear;
+	float           zFar;
 
 	//mouse speed
 	float			mSpeed;
