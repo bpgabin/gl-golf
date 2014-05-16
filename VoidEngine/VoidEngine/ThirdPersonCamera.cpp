@@ -1,20 +1,17 @@
 #include "ThirdPersonCamera.hpp"
 #include <iostream>
 
-ThirdPersonCamera::ThirdPersonCamera() : Camera(perspective)
+ThirdPersonCamera::ThirdPersonCamera(GolfBall* golfBall) : Camera(perspective)
 {
-	
-	//mPosition = 
-	// Initial Values
-	//mSpeed = 0.5f;
+    mGolfBall = golfBall;
 }
 
 void ThirdPersonCamera::handleMouseMovement(float x, float y)
 {
 	glm::vec3 direction = mTarget - mPosition;
 
-	float theta = ((x / 180) * 3.14);
-	float phi = ((y / 180) * 3.14);
+	float theta = (float)((x / 180) * 3.14);
+    float phi = (float)((y / 180) * 3.14);
 
 	glm::vec3 spherical = cartesianToSpherical(direction);
 
@@ -24,11 +21,10 @@ void ThirdPersonCamera::handleMouseMovement(float x, float y)
 	glm::vec3 worldCoordinates;
 	worldCoordinates = sphericalToCartesian(spherical);
 
+    mPosition = worldCoordinates + mGolfBall->getPosition();
+    mTarget = mGolfBall->getPosition();
 
-	//mPosition = ball.getPosition() - glm::vec3(0.2f,0,0.2f);
-	mPosition = worldCoordinates + ball.getPosition();
-	mTarget = ball.getPosition();
-
+    mOffset = mTarget - mPosition;
 }
 
 void ThirdPersonCamera::handleKeyboard(char input, float deltaTime)
@@ -63,4 +59,10 @@ void ThirdPersonCamera::handleKeyboard(char input, float deltaTime)
 void ThirdPersonCamera::setSpeed(float speed)
 {
 	mSpeed = speed;
+}
+
+void ThirdPersonCamera::updateCamera(float deltaTime)
+{
+    mPosition = mGolfBall->getPosition() - mOffset;
+    mTarget = mGolfBall->getPosition();
 }

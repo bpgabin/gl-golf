@@ -132,4 +132,7 @@ glm::vec3 Camera::sphericalToCartesian(glm::vec3 sphericalCoordinate)
 	return cartesianCoordinate * sphericalCoordinate.x;
 }
 
-
+void Camera::updateCamera(float deltaTime)
+{
+    // Intentionally left blank
+}

@@ -25,7 +25,6 @@ void TopDownCamera::handleMouseMovement(float x, float y)
 	printf("X %4.4f", worldCoordinates.x);
 	printf(" Y %4.4f", worldCoordinates.y);
 	printf(" Z %4.4f\n", worldCoordinates.z);
-	*/
 }
 
 void TopDownCamera::handleKeyboard(char input, float deltaTime)

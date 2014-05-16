@@ -35,10 +35,7 @@ public:
 	glm::vec3		sphericalToCartesian(glm::vec3 sphericalCoordinate);
 
 	//camera movement
-	void		moveForward();
-	void		moveBackward();
-	void		strafeLeft();
-	void		strafeRight();
+    virtual void    updateCamera(float deltaTime);
 
 protected:
     glm::mat4       getPerspectiveMatrix() const;

@@ -33,7 +33,7 @@ private:
 	Camera* camera;
     FreeLookCamera freeLookCamera;
 	TopDownCamera topDownCamera;
-	ThirdPersonCamera thirdPersonCamera;
+	ThirdPersonCamera* thirdPersonCamera;
     const int numberOfObjects = 5;
     GLuint vao[5], buffers[15], elementCounts[5];
     std::vector<glm::vec4> diffuseColors, ambientColors;
@@ -54,10 +54,11 @@ private:
 	int mouse_x, mouse_y;
 
 public:
-	myWindow(string inputFilename)
+    myWindow(string inputFilename)
     {
         // Load Level
         level = FileHandling::ReadFile(inputFilename);
+        thirdPersonCamera = new ThirdPersonCamera(level->getGolfBall());
     }
 
     virtual void OnRender()
@@ -115,6 +116,10 @@ public:
 
     void Update(float deltaTime)
     {
+        // Update Camera
+        camera->updateCamera(deltaTime);
+
+        // Handle Input
         if (keysPressed.size() != 0)
         {
             for (char keyPressed : keysPressed)
@@ -303,7 +308,7 @@ public:
 		}
 		else if (cAscii == '3') // 3
 		{
-			camera = &thirdPersonCamera;
+			camera = thirdPersonCamera;
 			glutPostRedisplay();
 		}
 		else
