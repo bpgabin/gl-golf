@@ -6,6 +6,12 @@
 #include "Wall.hpp"
 #include "GolfBall.hpp"
 
+namespace Utility
+{
+    void                    processVerts(std::vector<glm::vec3> &points, std::vector<glm::vec3> &verts, std::vector<GLuint> &indices);
+    GLuint                  checkIndice(std::vector<glm::vec3> &verts, glm::vec3 point);
+}
+
 // Represents a complete mini-golf level.
 class Level
 {
@@ -48,11 +54,9 @@ public:
     void                    setCup(LevelObject cup);
 
 private:
-    void                    processVerts(std::vector<glm::vec3> &points, std::vector<glm::vec3> &verts, std::vector<GLuint> &indices);
     void                    processTiles();
     void                    processTee();
     void                    processCup();
-    GLuint                  checkIndice(std::vector<glm::vec3> &verts, glm::vec3 point);
     glm::vec3               calculateNormal(const std::vector<glm::vec3> &points);
 
 private:

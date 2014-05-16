@@ -124,7 +124,7 @@ void Level::setCup(LevelObject cup)
     mCup = cup;
 }
 
-void Level::processVerts(std::vector<glm::vec3> &points, std::vector<glm::vec3> &verts, std::vector<GLuint> &indices)
+void Utility::processVerts(std::vector<glm::vec3> &points, std::vector<glm::vec3> &verts, std::vector<GLuint> &indices)
 {
     // Add first triangle of the polygon
     // Add the first point and store it for reuse
@@ -160,7 +160,7 @@ void Level::processTiles()
         // Get and store the tile's points
         std::vector<glm::vec3> points = mTiles[i].getVertices();
         
-        processVerts(points, mTilesVertices, mTilesIndices);
+        Utility::processVerts(points, mTilesVertices, mTilesIndices);
 
         // Get Neighbors
         std::vector<int> neighbors = mTiles[i].getNeighbors();
@@ -184,7 +184,7 @@ void Level::processTiles()
                     wall.push_back(points[j + 1] + glm::vec3(0.0, 0.15, 0.0));
                 }
                 wall.push_back(points[j] + glm::vec3(0.0, 0.15, 0.0));
-                processVerts(wall, mWallsVertices, mWallsIndices);
+                Utility::processVerts(wall, mWallsVertices, mWallsIndices);
 
                 // Generate and store the normals for the wall
                 glm::vec3 normal = calculateNormal(wall);
@@ -200,7 +200,7 @@ void Level::processTiles()
 
         // Generate and store face normals
         glm::vec3 normal = calculateNormal(points);
-        for (unsigned i = 0; i < points.size(); i++)
+        for (unsigned j = 0; j < points.size(); j++)
         {
             mTilesNormals.push_back(normal);
         }
@@ -227,7 +227,7 @@ glm::vec3 Level::calculateNormal(const std::vector<glm::vec3> &points)
 }
 
 // Checks if indice already exists in indice list, if so returns that point, otherwise returns new one
-GLuint Level::checkIndice(std::vector<glm::vec3> &verts, glm::vec3 point)
+GLuint Utility::checkIndice(std::vector<glm::vec3> &verts, glm::vec3 point)
 {
     // Check if point already exists in verts, if so return its position
     //for (unsigned i = 0; i < verts.size(); i++)
@@ -252,7 +252,7 @@ void Level::processTee()
     points.push_back(mTee.position - glm::vec3(-0.1, -0.001,  0.1));
 
     // Process Vertices
-    processVerts(points, mTeeVertices, mTeeIndices);
+    Utility::processVerts(points, mTeeVertices, mTeeIndices);
 
     // Calculate Normal
     glm::vec3 normal = calculateNormal(points);
@@ -283,7 +283,7 @@ void Level::processCup()
     points.push_back(point);
     
     // Process Vertices
-    processVerts(points, mCupVertices, mCupIndices);
+    Utility::processVerts(points, mCupVertices, mCupIndices);
 
     // Calculate Normal
     glm::vec3 normal = calculateNormal(points);

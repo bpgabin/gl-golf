@@ -104,11 +104,13 @@ public:
         {
             physicsLagTime -= fixedUpdateTime;
             Physics::fixedUpdate(*level, fixedUpdateTime);
-            mMatrices[2] = level->getGolfBall()->getModelMatrix();
         }
 
         // Call Update
         Update(deltaTime);
+
+        // Update Model Matrices
+        mMatrices[2] = level->getGolfBall()->getModelMatrix();
 
         // Render
         glutPostRedisplay();

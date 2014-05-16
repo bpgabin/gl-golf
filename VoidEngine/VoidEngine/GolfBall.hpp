@@ -14,7 +14,9 @@ public:
     glm::vec3               getVelocity() const;
     float                   getMass() const;
     int                     getTileID() const;
-    std::vector<glm::vec3>  getForces() const;
+    glm::vec3               getForces() const;
+
+    void                    addForce(glm::vec3 force);
 
     glm::mat4               getModelMatrix() const;
 
@@ -36,7 +38,7 @@ private:
 	glm::vec3	            mPosition;
     glm::vec3               mVelocity;
     float                   mMass;
-    std::vector<glm::vec3>  mForces;
+    glm::vec3               mForces;
 
     int                     mTileID;
     float                   mRadius;
