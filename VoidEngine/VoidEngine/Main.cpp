@@ -84,6 +84,7 @@ public:
             glBindVertexArray(0);
         }
 
+	
         shader->end();
 
         glutSwapBuffers();
@@ -226,6 +227,8 @@ public:
         glVertexAttribPointer(vNormal, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
         glBindVertexArray(0);
+
+		
     }
 
     virtual void OnResize(int w, int h) {}
@@ -265,7 +268,10 @@ public:
         glutPostRedisplay();
     }
     
-	virtual void OnMouseWheel(int nWheelNumber, int nDirection, int x, int y) {}
+	virtual void OnMouseWheel(int nWheelNumber, int nDirection, int x, int y) 
+	{
+		camera->handleMouseWheel(nWheelNumber, nDirection);
+	}
 
     virtual void OnKeyDown(int nKey, char cAscii)
     {

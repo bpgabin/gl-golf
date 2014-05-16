@@ -6,6 +6,7 @@
 class GolfBall
 {
 public:
+							GolfBall();
 							GolfBall(glm::vec3 position, float radius, unsigned rings, unsigned sectors);
 	std::vector<glm::vec3>	getVertices() const;
     std::vector<glm::vec3>  getNormals() const;
@@ -20,4 +21,5 @@ private:
     std::vector<glm::vec3>  mNormals;
     std::vector<GLuint>     mIndices;
 	glm::vec3	            mPosition;
+
 };
