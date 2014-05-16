@@ -12,19 +12,7 @@ TopDownCamera::TopDownCamera() : Camera(orthographic)
 
 void TopDownCamera::handleMouseMovement(float x, float y)
 {
-	float w = (float)glutGet(GLUT_WINDOW_WIDTH);
-	float h = (float)glutGet(GLUT_WINDOW_HEIGHT);
-	glm::vec3 windowCoordinates = glm::vec3(x,y,1.0f);
-	glm::vec4 viewport = glm::vec4(0.0f, 0.0f, w, h);
-	glm::vec3 worldCoordinates = glm::unProject(windowCoordinates, getViewMatrix(), getProjectionMatrix(), viewport);
-	glm::vec3 direction = worldCoordinates - mPosition;
-	glm::vec3 drt = glm::cross(direction, mUp);
-	//mTarget = glm::normalize(drt ) + mPosition;
-	//mPosition = drt * 0.2f;
-	mTarget = glm::normalize(worldCoordinates) + mPosition;
-	printf("X %4.4f", worldCoordinates.x);
-	printf(" Y %4.4f", worldCoordinates.y);
-	printf(" Z %4.4f\n", worldCoordinates.z);
+	
 }
 
 void TopDownCamera::handleKeyboard(char input, float deltaTime)
