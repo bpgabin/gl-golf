@@ -24,3 +24,13 @@ vector<int> Tile::getNeighbors() const
 {
     return mNeighbors;
 }
+
+glm::vec3 Tile::getNormal() const
+{
+    return mNormal;
+}
+
+void Tile::setNormal(glm::vec3 normal)
+{
+    mNormal = normal;
+}

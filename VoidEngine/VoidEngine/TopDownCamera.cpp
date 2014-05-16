@@ -11,8 +11,8 @@ TopDownCamera::TopDownCamera() : Camera(orthographic)
 
 void TopDownCamera::handleMouseMovement(float x, float y)
 {
-	float w = glutGet(GLUT_WINDOW_WIDTH);
-	float h = glutGet(GLUT_WINDOW_HEIGHT);
+	float w = (float)glutGet(GLUT_WINDOW_WIDTH);
+	float h = (float)glutGet(GLUT_WINDOW_HEIGHT);
 	glm::vec3 windowCoordinates = glm::vec3(x,1.0f,y);
 	glm::vec4 viewport = glm::vec4(0.0f, 0.0f, w, h);
 	glm::vec3 worldCoordinates = glm::unProject(windowCoordinates, getViewMatrix(), getProjectionMatrix(), viewport);
@@ -20,7 +20,6 @@ void TopDownCamera::handleMouseMovement(float x, float y)
 	mTarget = glm::normalize(direction) + mPosition;
 
 }
-
 
 void TopDownCamera::setSpeed(float speed)
 {

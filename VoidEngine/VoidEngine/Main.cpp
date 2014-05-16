@@ -15,6 +15,7 @@
 #include "FreeLookCamera.hpp"
 #include "TopDownCamera.hpp"
 #include "ThirdPersonCamera.hpp"
+#include "Physics.hpp"
 
 using namespace std;
 
@@ -42,10 +43,11 @@ private:
     float cameraAngle;
     float cameraRadius;
 	
-	float deltaTime;
+    float physicsLagTime = 0.0f;
 	float horizontalAngle = 3.14f;
 	float verticalAngle = 0.0f;
 	const float rotateX = 30.f;
+    const float fixedUpdateTime = 1.0f / 60.0f;
 
 	bool mouseDown = false;
 	std::vector<char> keysPressed;
@@ -91,12 +93,27 @@ public:
     {
 		// Get deltaTime
 		unsigned oldTimeSinceStart = timeSinceStart;
-		timeSinceStart = timeSinceStart = glutGet(GLUT_ELAPSED_TIME);
-		deltaTime = (float)(timeSinceStart - oldTimeSinceStart) / 1000.0f;
+		timeSinceStart = glutGet(GLUT_ELAPSED_TIME);
+		float deltaTime = (float)(timeSinceStart - oldTimeSinceStart) / 1000.0f;
+        
+        // Fixed Physics Time Step
+        physicsLagTime += deltaTime;
+        while (physicsLagTime > fixedUpdateTime)
+        {
+            physicsLagTime -= fixedUpdateTime;
+            Physics::fixedUpdate(*level, fixedUpdateTime);
+            mMatrices[2] = level->getGolfBall()->getModelMatrix();
+        }
 
-        //level->getGolfBall()->moveBall(glm::vec3(0.0, 0.1 * deltaTime, 0.0));
-        //mMatrices[2] = level->getGolfBall()->getModelMatrix();
+        // Call Update
+        Update(deltaTime);
 
+        // Render
+        glutPostRedisplay();
+    }
+
+    void Update(float deltaTime)
+    {
         if (keysPressed.size() != 0)
         {
             for (char keyPressed : keysPressed)
@@ -104,57 +121,73 @@ public:
                 camera->handleKeyboard(keyPressed, deltaTime);
             }
         }
-        glutPostRedisplay();
+    }
+
+    void SetupBuffer(GLuint vao, int bufferStart, const std::vector<glm::vec3> &verts, const std::vector<glm::vec3> &normals, const std::vector<GLuint> &elements)
+    {
+        glBindVertexArray(vao);
+
+        glBindBuffer(GL_ARRAY_BUFFER, buffers[bufferStart]);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * verts.size(), verts.data(), GL_STATIC_DRAW);
+
+        glBindBuffer(GL_ARRAY_BUFFER, buffers[bufferStart + 1]);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * normals.size(), normals.data(), GL_STATIC_DRAW);
+
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffers[bufferStart + 2]);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint)* elements.size(), elements.data(), GL_STATIC_DRAW);
+
+        GLuint vPosition = glGetAttribLocation(shader->GetProgramObject(), "in_Position");
+        GLuint vNormal = glGetAttribLocation(shader->GetProgramObject(), "in_Normal");
+        glEnableVertexAttribArray(vPosition);
+        glEnableVertexAttribArray(vNormal);
+
+        glBindBuffer(GL_ARRAY_BUFFER, buffers[bufferStart]);
+        glVertexAttribPointer(vPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+        glBindBuffer(GL_ARRAY_BUFFER, buffers[bufferStart + 1]);
+        glVertexAttribPointer(vNormal, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+        glBindVertexArray(0);
     }
 
     virtual void OnInit()
     {
-		// Set-up Camera
+		// Set-up Cameras
 		camera = &freeLookCamera;
-
-        // Set-up Model Matrices
-        mMatrices.push_back(glm::mat4());
-        mMatrices.push_back(glm::mat4());
-        mMatrices.push_back(level->getGolfBall()->getModelMatrix());
-        mMatrices.push_back(glm::mat4());
-        mMatrices.push_back(glm::mat4());
-
-        // Set-up colors
-        diffuseColors.push_back(glm::vec4(0.0, 0.5, 0.0, 1.0));
-        diffuseColors.push_back(glm::vec4(0.5, 0.0, 0.0, 1.0));
-        diffuseColors.push_back(glm::vec4(0.5, 0.5, 0.5, 1.0));
-        diffuseColors.push_back(glm::vec4(0.0, 0.0, 0.5, 1.0));
-        diffuseColors.push_back(glm::vec4(0.01, 0.01, 0.01, 1.0));
-        ambientColors.push_back(glm::vec4(0.0, 0.2, 0.0, 1.0));
-        ambientColors.push_back(glm::vec4(0.2, 0.0, 0.0, 1.0));
-        ambientColors.push_back(glm::vec4(0.2, 0.2, 0.2, 1.0));
-        ambientColors.push_back(glm::vec4(0.0, 0.0, 0.2, 1.0));
-        ambientColors.push_back(glm::vec4(0.01, 0.01, 0.01, 1.0));
+        topDownCamera.setPosition(glm::vec3(0.0f, 100.0f, 0.0f));
 
         // Get Time
         timeSinceStart = glutGet(GLUT_ELAPSED_TIME);
         cameraAngle = 0;
         cameraRadius = 5.0f;
 
+        // Setup openGL
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         glShadeModel(GL_SMOOTH);
         glEnable(GL_DEPTH_TEST);
 
+        // Load Shader
         shader = SM.loadfromFile("vertexshader.txt", "fragmentshader.txt"); // load (and compile, link) from file
         if (shader == 0)
             std::cout << "Error Loading, compiling or linking shader\n";
 
         // Get Level Data
-        std::vector<glm::vec3> verts = level->getTilesVertices();
-        std::vector<glm::vec3> normals = level->getTilesNormals();
-        std::vector<GLuint> elements = level->getTilesIndices();
-        elementCounts[0] = elements.size();
+        std::vector<glm::vec3> levelVerts = level->getTilesVertices();
+        std::vector<glm::vec3> levelNormals = level->getTilesNormals();
+        std::vector<GLuint> levelElements = level->getTilesIndices();
+        elementCounts[0] = levelElements.size();
+        mMatrices.push_back(glm::mat4());
+        diffuseColors.push_back(glm::vec4(0.0, 0.5, 0.0, 1.0));
+        ambientColors.push_back(glm::vec4(0.0, 0.2, 0.0, 1.0));
 
         // Get Wall Data
         std::vector<glm::vec3> wallVerts = level->getWallsVertices();
         std::vector<glm::vec3> wallNormals = level->getWallsNormals();
         std::vector<GLuint> wallElements = level->getWallsIndices();
         elementCounts[1] = wallElements.size();
+        mMatrices.push_back(glm::mat4());
+        diffuseColors.push_back(glm::vec4(0.5, 0.0, 0.0, 1.0));
+        ambientColors.push_back(glm::vec4(0.2, 0.0, 0.0, 1.0));
 
         // Get Ball Data
         GolfBall* golfBall = level->getGolfBall();
@@ -162,139 +195,38 @@ public:
         std::vector<glm::vec3> ballNormals = golfBall->getNormals();
         std::vector<GLuint> ballElements = golfBall->getIndices();
         elementCounts[2] = ballElements.size();
+        mMatrices.push_back(level->getGolfBall()->getModelMatrix());
+        diffuseColors.push_back(glm::vec4(0.5, 0.5, 0.5, 1.0));
+        ambientColors.push_back(glm::vec4(0.2, 0.2, 0.2, 1.0));
 
         // Get Tee Data
         std::vector<glm::vec3> teeVerts = level->getTeeVertices();
         std::vector<glm::vec3> teeNormals = level->getTeeNormals();
         std::vector<GLuint> teeElements = level->getTeeIndices();
         elementCounts[3] = teeElements.size();
+        mMatrices.push_back(glm::mat4());
+        diffuseColors.push_back(glm::vec4(0.0, 0.0, 0.5, 1.0));
+        ambientColors.push_back(glm::vec4(0.0, 0.0, 0.2, 1.0));
 
         // Get Cup Data
         std::vector<glm::vec3> cupVerts = level->getCupVertices();
         std::vector<glm::vec3> cupNormals = level->getCupNormals();
         std::vector<GLuint> cupElements = level->getCupIndices();
         elementCounts[4] = cupElements.size();
+        mMatrices.push_back(glm::mat4());
+        diffuseColors.push_back(glm::vec4(0.01, 0.01, 0.01, 1.0));
+        ambientColors.push_back(glm::vec4(0.01, 0.01, 0.01, 1.0));
 
-        GLuint vPosition = glGetAttribLocation(shader->GetProgramObject(), "in_Position");
-        GLuint vNormal = glGetAttribLocation(shader->GetProgramObject(), "in_Normal");
-
+        // Generate Buffers
         glGenVertexArrays(numberOfObjects, vao);
         glGenBuffers(numberOfObjects * 3, buffers);
 
-        // Tiles
-        glBindVertexArray(vao[0]);
-
-        glBindBuffer(GL_ARRAY_BUFFER, buffers[0]);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * verts.size(), verts.data(), GL_STATIC_DRAW);
-
-        glBindBuffer(GL_ARRAY_BUFFER, buffers[1]);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * normals.size(), normals.data(), GL_STATIC_DRAW);
-
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffers[2]);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * elements.size(), elements.data(), GL_STATIC_DRAW);
-
-        glEnableVertexAttribArray(vPosition);
-        glEnableVertexAttribArray(vNormal);
-
-        glBindBuffer(GL_ARRAY_BUFFER, buffers[0]);
-        glVertexAttribPointer(vPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
-
-        glBindBuffer(GL_ARRAY_BUFFER, buffers[1]);
-        glVertexAttribPointer(vNormal, 3, GL_FLOAT, GL_FALSE, 0, 0);
-
-        glBindVertexArray(0);
-
-        // Walls
-        glBindVertexArray(vao[1]);
-
-        glBindBuffer(GL_ARRAY_BUFFER, buffers[3]);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * wallVerts.size(), wallVerts.data(), GL_STATIC_DRAW);
-        
-        glBindBuffer(GL_ARRAY_BUFFER, buffers[4]);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * wallNormals.size(), wallNormals.data(), GL_STATIC_DRAW);
-        
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffers[5]);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * wallElements.size(), wallElements.data(), GL_STATIC_DRAW);
-
-        glEnableVertexAttribArray(vPosition);
-        glEnableVertexAttribArray(vNormal);
-
-        glBindBuffer(GL_ARRAY_BUFFER, buffers[3]);
-        glVertexAttribPointer(vPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
-
-        glBindBuffer(GL_ARRAY_BUFFER, buffers[4]);
-        glVertexAttribPointer(vNormal, 3, GL_FLOAT, GL_FALSE, 0, 0);
-
-        glBindVertexArray(0);
-
-        // Ball
-        glBindVertexArray(vao[2]);
-
-        glBindBuffer(GL_ARRAY_BUFFER, buffers[6]);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * ballVerts.size(), ballVerts.data(), GL_STATIC_DRAW);
-
-        glBindBuffer(GL_ARRAY_BUFFER, buffers[7]);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * ballNormals.size(), ballNormals.data(), GL_STATIC_DRAW);
-
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffers[8]);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint)* ballElements.size(), ballElements.data(), GL_STATIC_DRAW);
-
-        glEnableVertexAttribArray(vPosition);
-        glEnableVertexAttribArray(vNormal);
-
-        glBindBuffer(GL_ARRAY_BUFFER, buffers[6]);
-        glVertexAttribPointer(vPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
-
-        glBindBuffer(GL_ARRAY_BUFFER, buffers[7]);
-        glVertexAttribPointer(vNormal, 3, GL_FLOAT, GL_FALSE, 0, 0);
-
-        glBindVertexArray(0);
-
-        // Tee
-        glBindVertexArray(vao[3]);
-
-        glBindBuffer(GL_ARRAY_BUFFER, buffers[9]);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * teeVerts.size(), teeVerts.data(), GL_STATIC_DRAW);
-
-        glBindBuffer(GL_ARRAY_BUFFER, buffers[10]);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * teeNormals.size(), teeNormals.data(), GL_STATIC_DRAW);
-
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffers[11]);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint)* teeElements.size(), teeElements.data(), GL_STATIC_DRAW);
-
-        glEnableVertexAttribArray(vPosition);
-        glEnableVertexAttribArray(vNormal);
-
-        glBindBuffer(GL_ARRAY_BUFFER, buffers[9]);
-        glVertexAttribPointer(vPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
-
-        glBindBuffer(GL_ARRAY_BUFFER, buffers[10]);
-        glVertexAttribPointer(vNormal, 3, GL_FLOAT, GL_FALSE, 0, 0);
-
-        glBindVertexArray(0);
-
-        // Cup
-        glBindVertexArray(vao[4]);
-
-        glBindBuffer(GL_ARRAY_BUFFER, buffers[12]);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * cupVerts.size(), cupVerts.data(), GL_STATIC_DRAW);
-
-        glBindBuffer(GL_ARRAY_BUFFER, buffers[13]);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * cupNormals.size(), cupNormals.data(), GL_STATIC_DRAW);
-
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffers[14]);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint)* cupElements.size(), cupElements.data(), GL_STATIC_DRAW);
-
-        glEnableVertexAttribArray(vPosition);
-        glEnableVertexAttribArray(vNormal);
-
-        glBindBuffer(GL_ARRAY_BUFFER, buffers[12]);
-        glVertexAttribPointer(vPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
-
-        glBindBuffer(GL_ARRAY_BUFFER, buffers[13]);
-        glVertexAttribPointer(vNormal, 3, GL_FLOAT, GL_FALSE, 0, 0);
-
-        glBindVertexArray(0);
+        // Configure Buffers
+        SetupBuffer(vao[0], 0, levelVerts, levelNormals, levelElements);
+        SetupBuffer(vao[1], 3, wallVerts, wallNormals, wallElements);
+        SetupBuffer(vao[2], 6, ballVerts, ballNormals, ballElements);
+        SetupBuffer(vao[3], 9, teeVerts, teeNormals, teeElements);
+        SetupBuffer(vao[4], 12, cupVerts, cupNormals, cupElements);
     }
 
     virtual void OnResize(int w, int h)

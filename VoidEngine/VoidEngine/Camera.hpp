@@ -21,7 +21,7 @@ public:
     void            setTarget(glm::vec3);
     void            setUp(glm::vec3);
 	virtual void	handleMouseMovement(float x, float y);
-	virtual void	handleKeyboard(char input, float deltaTime);
+    virtual void	handleKeyboard(char input, float deltaTime);
 
     // Projection Functions
     ProjectionMode  getProjectionMode() const;

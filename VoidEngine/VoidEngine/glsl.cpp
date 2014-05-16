@@ -1348,12 +1348,12 @@ unsigned long getFileLength(ifstream& file)
 {
     if(!file.good()) return 0;
     
-    unsigned long pos=file.tellg();
+    streamoff pos = file.tellg();
     file.seekg(0,ios::end);
-    unsigned long len = file.tellg();
+    streamoff len = file.tellg();
     file.seekg(ios::beg);
     
-    return len;
+    return (unsigned long)len;
 }
 
 

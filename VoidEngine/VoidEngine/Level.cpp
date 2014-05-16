@@ -2,7 +2,7 @@
 #include <cmath>
 #include "Level.hpp"
 
-Level::Level(std::vector<Tile> tiles, LevelObject tee, LevelObject cup) : mGolfBall(glm::vec3(0.0f, 0.0f, 0.0f), 0.05f, 10, 10)
+Level::Level(std::vector<Tile> tiles, LevelObject tee, LevelObject cup) : mGolfBall(glm::vec3(0.0f, 0.0f, 0.0f), 0.05f, 50, 50)
 {
     // Store level information
     mTiles = tiles;
@@ -10,6 +10,7 @@ Level::Level(std::vector<Tile> tiles, LevelObject tee, LevelObject cup) : mGolfB
     mCup = cup;
 
     mGolfBall.setPosition(mTee.position);
+    mGolfBall.setTileID(mTee.tileID);
 
     // Process level information
     processTiles();
@@ -203,6 +204,8 @@ void Level::processTiles()
         {
             mTilesNormals.push_back(normal);
         }
+
+        mTiles[i].setNormal(normal);
     }
 }
 
@@ -243,10 +246,10 @@ void Level::processTee()
 {
     // Calculate Points
     std::vector<glm::vec3> points;
-    points.push_back(mTee.position - glm::vec3(-0.1, -0.01, -0.1));
-    points.push_back(mTee.position - glm::vec3( 0.1, -0.01, -0.1));
-    points.push_back(mTee.position - glm::vec3( 0.1, -0.01,  0.1));
-    points.push_back(mTee.position - glm::vec3(-0.1, -0.01,  0.1));
+    points.push_back(mTee.position - glm::vec3(-0.1, -0.001, -0.1));
+    points.push_back(mTee.position - glm::vec3( 0.1, -0.001, -0.1));
+    points.push_back(mTee.position - glm::vec3( 0.1, -0.001,  0.1));
+    points.push_back(mTee.position - glm::vec3(-0.1, -0.001,  0.1));
 
     // Process Vertices
     processVerts(points, mTeeVertices, mTeeIndices);
@@ -262,19 +265,21 @@ void Level::processTee()
 void Level::processCup()
 {
     std::vector<glm::vec3> points;
-    points.push_back(mCup.position + glm::vec3(0.0, 0.01, 0.0));
+    points.push_back(mCup.position + glm::vec3(0.0, 0.001, 0.0));
     // Create Vertices
-    for (int i = 0; i < 10; i++)
+    const int roundness = 20;
+    const double radius = 0.1;
+    for (int i = 0; i < roundness; i++)
     {
-        double x = sin((2 * M_PI / 10.0) * i) * 0.1;
-        double z = cos((2 * M_PI / 10.0) * i) * 0.1;
-        glm::vec3 point(x + mCup.position.x, mCup.position.y + 0.01, z + mCup.position.z);
+        double x = sin((2 * M_PI / roundness) * i) * radius;
+        double z = cos((2 * M_PI / roundness) * i) * radius;
+        glm::vec3 point(x + mCup.position.x, mCup.position.y + 0.001, z + mCup.position.z);
         points.push_back(point);
     }
     
     double x = sin(0) * 0.1;
     double z = cos(0) * 0.1;
-    glm::vec3 point(x + mCup.position.x, mCup.position.y + 0.01, z + mCup.position.z);
+    glm::vec3 point(x + mCup.position.x, mCup.position.y + 0.001, z + mCup.position.z);
     points.push_back(point);
     
     // Process Vertices

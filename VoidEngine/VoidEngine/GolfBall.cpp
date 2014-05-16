@@ -7,6 +7,8 @@
 GolfBall::GolfBall(glm::vec3 position, float radius = 1.0, unsigned rings = 10, unsigned sectors = 10)
 {
     mPosition = position;
+    mVelocity = glm::vec3(0.0f, 0.0f, -0.1f);
+    mMass = 1.0f;
     mRadius = radius;
 
     // Create Vertices
@@ -53,6 +55,26 @@ glm::vec3 GolfBall::getPosition() const
     return mPosition;
 }
 
+glm::vec3 GolfBall::getVelocity() const
+{
+    return mVelocity;
+}
+
+float GolfBall::getMass() const
+{
+    return mMass;
+}
+
+int GolfBall::getTileID() const
+{
+    return mTileID;
+}
+
+std::vector<glm::vec3> GolfBall::getForces() const
+{
+    return mForces;
+}
+
 glm::mat4 GolfBall::getModelMatrix() const
 {
     return glm::translate(glm::mat4(), mPosition + glm::vec3(0.0f, mRadius, 0.0f));
@@ -63,9 +85,29 @@ void GolfBall::setPosition(glm::vec3 position)
     mPosition = position;
 }
 
+void GolfBall::setVelocity(glm::vec3 velocity)
+{
+    mVelocity = velocity;
+}
+
+void GolfBall::setMass(float mass)
+{
+    mMass = mass;
+}
+
+void GolfBall::setTileID(int tileID)
+{
+    mTileID = tileID;
+}
+
 void GolfBall::moveBall(glm::vec3 distance)
 {
     mPosition += distance;
+}
+
+void GolfBall::clearForces()
+{
+    mForces.clear();
 }
 
 void GolfBall::pushIndices(int sectors, int r, int s)

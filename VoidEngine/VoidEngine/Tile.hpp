@@ -9,9 +9,12 @@ public:
 	int						getID() const;
 	std::vector<glm::vec3>	getVertices() const;
 	std::vector<int>		getNeighbors() const;
+    glm::vec3               getNormal() const;
+    void                    setNormal(glm::vec3 normal);
 
 private:
 	int						mID;
 	std::vector<glm::vec3>	mVertices;
 	std::vector<int>		mNeighbors;
+    glm::vec3               mNormal;
 };

@@ -1,4 +1,6 @@
 #pragma once
+#define _USE_MATH_DEFINES
+#include <cmath>
 #include "FreeLookCamera.hpp"
 #include <iostream>
 
@@ -12,13 +14,26 @@ void FreeLookCamera::handleMouseMovement(float x, float y)
 {
 	glm::vec3 direction = mTarget - mPosition;
 
-	float theta = ((x / 180) * 3.14);
-	float phi = ((y / 180) * 3.14);
+	float theta = (float)((x / 180.0f) * M_PI);
+	float phi = (float)((y / 180.0f) * M_PI);
 
 	glm::vec3 spherical = cartesianToSpherical(direction);
 
 	spherical.y = spherical.y - theta;
-	spherical.z = spherical.z + phi;
+    if (phi < 0)
+    {
+        if (spherical.z + phi > 0)
+        {
+            spherical.z = spherical.z + phi;
+        }
+    }
+    else if (phi > 0)
+    {
+        if (spherical.z + phi < M_PI)
+        {
+            spherical.z = spherical.z + phi;
+        }
+    }
 
 	glm::vec3 worldCoordinates;
 	worldCoordinates = sphericalToCartesian(spherical);
