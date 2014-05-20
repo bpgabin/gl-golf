@@ -2,8 +2,12 @@
 #include <cmath>
 #include "Level.hpp"
 
+Level* Level::sInstance = nullptr;
+
 Level::Level(std::vector<Tile> tiles, LevelObject tee, LevelObject cup) : mGolfBall(glm::vec3(0.0f, 0.0f, 0.0f), 0.05f, 50, 50)
 {
+    sInstance = this;
+
     // Store level information
     mTiles = tiles;
     mTee = tee;
@@ -21,6 +25,11 @@ Level::Level(std::vector<Tile> tiles, LevelObject tee, LevelObject cup) : mGolfB
 Level::~Level()
 {
 
+}
+
+Level* Level::getInstance()
+{
+    return sInstance;
 }
 
 std::vector<Tile> Level::getTiles() const
@@ -173,28 +182,32 @@ void Level::processTiles()
                 std::vector<glm::vec3> wall;
                 // Get ground points
                 wall.push_back(points[j]);
+                wall.push_back(points[j] + glm::vec3(0.0, 0.15, 0.0));
                 if (j + 1 == neighbors.size())
                 {
-                    wall.push_back(points[0]);
                     wall.push_back(points[0] + glm::vec3(0.0, 0.15, 0.0));
+                    wall.push_back(points[0]);
                 }
                 else
                 {
-                    wall.push_back(points[j + 1]);
                     wall.push_back(points[j + 1] + glm::vec3(0.0, 0.15, 0.0));
+                    wall.push_back(points[j + 1]);
                 }
-                wall.push_back(points[j] + glm::vec3(0.0, 0.15, 0.0));
                 Utility::processVerts(wall, mWallsVertices, mWallsIndices);
 
                 // Generate and store the normals for the wall
                 glm::vec3 normal = calculateNormal(wall);
-                for (unsigned i = 0; i < wall.size(); i++)
+                for (unsigned k = 0; k < wall.size(); k++)
                 {
                     mWallsNormals.push_back(normal);
                 }
 
                 // Create and save the wall object
-                mWalls.push_back(Wall(wall));
+                Wall* wallObj = new Wall(wall);
+                wallObj->setNormal(normal);
+                wallObj->setTileID(mTiles[i].getID());
+                mTiles[i].addWall(wallObj);
+                mWalls.push_back(*wallObj);
             }
         }
 
@@ -223,7 +236,7 @@ glm::vec3 Level::calculateNormal(const std::vector<glm::vec3> &points)
     float nz = (v.x * w.y) - (v.y * w.x);
 
     glm::vec3 normals(nx, ny, nz);
-    return normals;
+    return glm::normalize(normals);
 }
 
 // Checks if indice already exists in indice list, if so returns that point, otherwise returns new one

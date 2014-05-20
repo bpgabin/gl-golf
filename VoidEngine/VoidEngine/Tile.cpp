@@ -34,3 +34,13 @@ void Tile::setNormal(glm::vec3 normal)
 {
     mNormal = normal;
 }
+
+void Tile::addWall(Wall* wall)
+{
+    mWalls.push_back(wall);
+}
+
+std::vector<Wall*> Tile::getWalls()
+{
+    return mWalls;
+}

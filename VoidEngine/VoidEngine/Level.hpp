@@ -27,6 +27,7 @@ public:
 						    Level(std::vector<Tile> tiles, LevelObject tee, LevelObject cup);
                             ~Level();
     
+    static Level*           getInstance();
 	std::vector<Tile>	    getTiles() const;
     std::vector<glm::vec3>  getTilesVertices() const;
     std::vector<glm::vec3>  getTilesNormals() const;
@@ -60,7 +61,9 @@ private:
     glm::vec3               calculateNormal(const std::vector<glm::vec3> &points);
 
 private:
-	std::vector<Tile>	    mTiles;
+    static Level*           sInstance;
+    
+    std::vector<Tile>	    mTiles;
     std::vector<Wall>       mWalls;
     LevelObject			    mTee;
     LevelObject			    mCup;

@@ -2,11 +2,12 @@
 #include <cmath>
 #include <glm/gtc/matrix_transform.hpp>
 #include "GolfBall.hpp"
+#include "Level.hpp"
 
 GolfBall::GolfBall(glm::vec3 position, float radius = 1.0, unsigned rings = 10, unsigned sectors = 10)
 {
     mPosition = position;
-    mVelocity = glm::vec3(0.0f, 0.0f, -1.0f);
+    mVelocity = glm::vec3(2.0f, 0.0f, -1.0f);
     mMass = 1.0f;
     mRadius = radius;
 
@@ -81,7 +82,14 @@ void GolfBall::addForce(glm::vec3 force)
 
 glm::mat4 GolfBall::getModelMatrix() const
 {
-    return glm::translate(glm::mat4(), mPosition + glm::vec3(0.0f, mRadius, 0.0f));
+    if (mTileID > 0)
+    {
+        return glm::translate(glm::mat4(), mPosition + mRadius * Level::getInstance()->getTiles()[mTileID - 1].getNormal());
+    }
+    else
+    {
+        return glm::translate(glm::mat4(), mPosition + glm::vec3(0.0f, mRadius, 0.0f));
+    }
 }
 
 void GolfBall::setPosition(glm::vec3 position)
