@@ -16,6 +16,7 @@
 #include "TopDownCamera.hpp"
 #include "ThirdPersonCamera.hpp"
 #include "Physics.hpp"
+#include "Putter.hpp"
 
 using namespace std;
 
@@ -31,11 +32,13 @@ private:
     Level* level;
 
 	Camera* camera;
+    Putter* putter;
+
     FreeLookCamera freeLookCamera;
 	TopDownCamera topDownCamera;
 	ThirdPersonCamera* thirdPersonCamera;
-    const int numberOfObjects = 5;
-    GLuint vao[5], buffers[15], elementCounts[5];
+    const int numberOfObjects = 6;
+    GLuint vao[6], buffers[18], elementCounts[6];
     std::vector<glm::vec4> diffuseColors, ambientColors;
     std::vector<glm::mat4> mMatrices;
 
@@ -121,12 +124,17 @@ public:
         // Update Camera
         camera->updateCamera(deltaTime);
 
+        // Move Putter to Ball
+        putter->setPosition(level->getGolfBall()->getPosition());
+        mMatrices[5] = putter->getModelMatrix();
+
         // Handle Input
         if (keysPressed.size() != 0)
         {
             for (char keyPressed : keysPressed)
             {
                 camera->handleKeyboard(keyPressed, deltaTime);
+                putter->handleKeyboard(keyPressed, deltaTime);
             }
         }
     }
@@ -225,6 +233,16 @@ public:
         diffuseColors.push_back(glm::vec4(0.01, 0.01, 0.01, 1.0));
         ambientColors.push_back(glm::vec4(0.01, 0.01, 0.01, 1.0));
 
+        //Putter
+        putter = level->getPutter();
+        std::vector<glm::vec3> puttVerts = putter->getVertices();
+        std::vector<glm::vec3> puttNormals = putter->getNormals();
+        std::vector<GLuint> puttElements = putter->getIndices();
+        elementCounts[5] = puttElements.size();
+        mMatrices.push_back(level->getPutter()->getModelMatrix());
+        diffuseColors.push_back(glm::vec4(0.5, 0.0, 0.0, 1.0));
+        ambientColors.push_back(glm::vec4(0.2, 0.0, 0.0, 1.0));
+
         // Generate Buffers
         glGenVertexArrays(numberOfObjects, vao);
         glGenBuffers(numberOfObjects * 3, buffers);
@@ -235,6 +253,7 @@ public:
         SetupBuffer(vao[2], 6, ballVerts, ballNormals, ballElements);
         SetupBuffer(vao[3], 9, teeVerts, teeNormals, teeElements);
         SetupBuffer(vao[4], 12, cupVerts, cupNormals, cupElements);
+        SetupBuffer(vao[5], 15, puttVerts, puttNormals, puttElements);
     }
 
     virtual void OnResize(int w, int h)

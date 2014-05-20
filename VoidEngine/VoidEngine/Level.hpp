@@ -5,13 +5,14 @@
 #include "Tile.hpp"
 #include "Wall.hpp"
 #include "GolfBall.hpp"
+#include "Putter.hpp"
 
 namespace Utility
 {
     void                    processVerts(std::vector<glm::vec3> &points, std::vector<glm::vec3> &verts, std::vector<GLuint> &indices);
+    glm::vec3               calculateNormal(const std::vector<glm::vec3> &points);
     GLuint                  checkIndice(std::vector<glm::vec3> &verts, glm::vec3 point);
 }
-
 // Represents a complete mini-golf level.
 class Level
 {
@@ -49,6 +50,7 @@ public:
     std::vector<GLuint>     getCupIndices() const;
 
     GolfBall*               getGolfBall();
+    Putter*                 getPutter();
 
     void                    setTiles(std::vector<Tile> tiles);
     void                    setTee(LevelObject tee);
@@ -58,7 +60,6 @@ private:
     void                    processTiles();
     void                    processTee();
     void                    processCup();
-    glm::vec3               calculateNormal(const std::vector<glm::vec3> &points);
 
 private:
     static Level*           sInstance;
@@ -68,6 +69,7 @@ private:
     LevelObject			    mTee;
     LevelObject			    mCup;
     GolfBall                mGolfBall;
+    Putter                  mPutter;
 
     std::vector<glm::vec3>  mTilesVertices;
     std::vector<glm::vec3>  mTilesNormals;

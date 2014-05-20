@@ -7,7 +7,6 @@
 GolfBall::GolfBall(glm::vec3 position, float radius = 1.0, unsigned rings = 10, unsigned sectors = 10)
 {
     mPosition = position;
-    mVelocity = glm::vec3(2.0f, 0.0f, -1.0f);
     mMass = 1.0f;
     mRadius = radius;
 

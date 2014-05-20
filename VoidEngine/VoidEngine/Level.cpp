@@ -4,7 +4,7 @@
 
 Level* Level::sInstance = nullptr;
 
-Level::Level(std::vector<Tile> tiles, LevelObject tee, LevelObject cup) : mGolfBall(glm::vec3(0.0f, 0.0f, 0.0f), 0.05f, 50, 50)
+Level::Level(std::vector<Tile> tiles, LevelObject tee, LevelObject cup) : mGolfBall(glm::vec3(0.0f, 0.0f, 0.0f), 0.05f, 50, 50), mPutter(&mGolfBall)
 {
     sInstance = this;
 
@@ -118,6 +118,11 @@ GolfBall* Level::getGolfBall()
     return &mGolfBall;
 }
 
+Putter* Level::getPutter()
+{
+    return &mPutter;
+}
+
 void Level::setTiles(std::vector<Tile> tiles)
 {
     mTiles = tiles;
@@ -196,7 +201,7 @@ void Level::processTiles()
                 Utility::processVerts(wall, mWallsVertices, mWallsIndices);
 
                 // Generate and store the normals for the wall
-                glm::vec3 normal = calculateNormal(wall);
+                glm::vec3 normal = Utility::calculateNormal(wall);
                 for (unsigned k = 0; k < wall.size(); k++)
                 {
                     mWallsNormals.push_back(normal);
@@ -212,7 +217,7 @@ void Level::processTiles()
         }
 
         // Generate and store face normals
-        glm::vec3 normal = calculateNormal(points);
+        glm::vec3 normal = Utility::calculateNormal(points);
         for (unsigned j = 0; j < points.size(); j++)
         {
             mTilesNormals.push_back(normal);
@@ -222,7 +227,7 @@ void Level::processTiles()
     }
 }
 
-glm::vec3 Level::calculateNormal(const std::vector<glm::vec3> &points)
+glm::vec3 Utility::calculateNormal(const std::vector<glm::vec3> &points)
 {
     glm::vec3 p1 = points[0];
     glm::vec3 p2 = points[1];
@@ -268,7 +273,7 @@ void Level::processTee()
     Utility::processVerts(points, mTeeVertices, mTeeIndices);
 
     // Calculate Normal
-    glm::vec3 normal = calculateNormal(points);
+    glm::vec3 normal = Utility::calculateNormal(points);
     mTeeNormals.push_back(normal);
     mTeeNormals.push_back(normal);
     mTeeNormals.push_back(normal);
@@ -299,7 +304,7 @@ void Level::processCup()
     Utility::processVerts(points, mCupVertices, mCupIndices);
 
     // Calculate Normal
-    glm::vec3 normal = calculateNormal(points);
+    glm::vec3 normal = Utility::calculateNormal(points);
     for (unsigned i = 0; i < points.size(); i++)
     {
         mCupNormals.push_back(normal);

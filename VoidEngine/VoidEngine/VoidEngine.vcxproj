@@ -81,6 +81,7 @@
     <ClCompile Include="Light.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Physics.cpp" />
+    <ClCompile Include="Putter.cpp" />
     <ClCompile Include="ThirdPersonCamera.cpp" />
     <ClCompile Include="Tile.cpp" />
     <ClCompile Include="TopDownCamera.cpp" />
@@ -98,6 +99,7 @@
     <ClInclude Include="Level.hpp" />
     <ClInclude Include="Light.hpp" />
     <ClInclude Include="Physics.hpp" />
+    <ClInclude Include="Putter.hpp" />
     <ClInclude Include="ThirdPersonCamera.hpp" />
     <ClInclude Include="Tile.hpp" />
     <ClInclude Include="TopDownCamera.hpp" />

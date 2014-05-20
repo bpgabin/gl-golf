@@ -69,6 +69,9 @@
     <ClCompile Include="glutwindow.cpp">
       <Filter>Source Files\cwc</Filter>
     </ClCompile>
+    <ClCompile Include="Putter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="glApplication.h">
@@ -114,6 +117,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Physics.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Putter.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

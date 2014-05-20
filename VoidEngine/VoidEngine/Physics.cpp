@@ -18,6 +18,7 @@ bool isInside(const Tile &tile, const glm::vec3 &point);
 void moveBallToGround(GolfBall* golfBall, Tile* tile);
 void frictionCalculation(GolfBall* golfBall, glm::vec3 normalForce, float &subTime, const float fixedUpdateTime);
 void collisionCheck(GolfBall* golfBall, Tile &tile);
+void checkCup(const Level &level, GolfBall* golfBall);
 
 void Physics::fixedUpdate(Level &level, float fixedUpdateTime)
 {
@@ -85,12 +86,17 @@ void Physics::fixedUpdate(Level &level, float fixedUpdateTime)
     if (matchedTile > 0)
     {
         frictionCalculation(golfBall, normalForce, subTime, fixedUpdateTime);
-        collisionCheck(golfBall, tiles[matchedTile - 1]);
     }
 
     // Update Ball Position
     golfBall->setTileID(matchedTile);
     updateBall(golfBall, fixedUpdateTime - subTime);
+
+    if (matchedTile > 0)
+    {
+        collisionCheck(golfBall, tiles[matchedTile - 1]);
+        checkCup(level, golfBall);
+    }
 
     // If on a tile, move the ball to the tile.
     if (matchedTile > 0)
@@ -116,12 +122,32 @@ void collisionCheck(GolfBall* golfBall, Tile &tile)
             if (raycast(points[0], normal, golfPos, golfDir, distance))
             {
                 //std::cout << "distance: " << distance << " delta from speed: " << goldVelMag * (1.0f / 60.0f) << std::endl;
-                if (distance <= 0.01f)
+                if (distance <= 0.1f)
                 {
                     glm::vec3 newVelocity = golfVel - (2 * glm::dot(golfVel, normal) * normal);
                     golfBall->setVelocity(newVelocity);
                 }
             }
+        }
+    }
+}
+
+void checkCup(const Level &level, GolfBall* golfBall)
+{
+    Level::LevelObject cup = level.getCup();
+    if (glm::length(cup.position - golfBall->getPosition()) < 0.1f)
+    {
+        if (glm::length(golfBall->getVelocity()) < 3.0f)
+        {
+            std::cout << "You win!\n";
+            Level::LevelObject tee = level.getTee();
+            golfBall->setPosition(tee.position);
+            golfBall->setVelocity(glm::vec3(0.0f, 0.0f, 0.0f));
+            golfBall->setTileID(tee.tileID);
+        }
+        else
+        {
+            std::cout << "You Thought!\n";
         }
     }
 }
@@ -133,7 +159,7 @@ void frictionCalculation(GolfBall* golfBall, glm::vec3 normalForce, float &subTi
     float velocityMag = glm::length(golfBall->getVelocity());
     if (velocityMag >= ZERO)
     {
-        const float coefficientStatic = 0.06f;
+        const float coefficientStatic = 0.08f;
         glm::vec3 forceFriction = glm::length(coefficientStatic * normalForce) * -(glm::normalize(golfBall->getVelocity()));
         golfBall->addForce(forceFriction);
 
