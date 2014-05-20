@@ -4,27 +4,28 @@
 ThirdPersonCamera::ThirdPersonCamera(GolfBall* golfBall) : Camera(perspective)
 {
     mGolfBall = golfBall;
+	mOffset = mGolfBall->getPosition() ;
+	radius = 2.0f;
 }
 
 void ThirdPersonCamera::handleMouseMovement(float x, float y)
 {
-	glm::vec3 direction = mTarget - mPosition;
+	glm::vec3 worldCoordinates;
+	//glm::vec3 direction = mTarget - mPosition;
+
+	
 
 	float theta = (float)((x / 180) * 3.14);
     float phi = (float)((y / 180) * 3.14);
 
-	glm::vec3 spherical = cartesianToSpherical(direction);
+	glm::vec3 spherical = cartesianToSpherical(mOffset);
 
 	spherical.y = spherical.y - theta;
 	spherical.z = spherical.z + phi;
+	spherical.x = radius;
 
-	glm::vec3 worldCoordinates;
-	worldCoordinates = sphericalToCartesian(spherical);
-
-    mPosition = worldCoordinates + mGolfBall->getPosition();
-    mTarget = mGolfBall->getPosition();
-
-    mOffset = mTarget - mPosition;
+	
+	mOffset = sphericalToCartesian(spherical);
 }
 
 void ThirdPersonCamera::handleKeyboard(char input, float deltaTime)
@@ -63,6 +64,6 @@ void ThirdPersonCamera::setSpeed(float speed)
 
 void ThirdPersonCamera::updateCamera(float deltaTime)
 {
-    mPosition = mGolfBall->getPosition() - mOffset;
-    mTarget = mGolfBall->getPosition();
+  mPosition = mGolfBall->getPosition() + mOffset;
+  mTarget = mGolfBall->getPosition();
 }

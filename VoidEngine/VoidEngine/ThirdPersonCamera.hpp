@@ -15,4 +15,5 @@ private:
 	float			mSpeed;
     glm::vec3       mOffset;
     GolfBall*		mGolfBall;
+	float			radius;
 };

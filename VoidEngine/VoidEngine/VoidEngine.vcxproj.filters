@@ -39,9 +39,6 @@
     <ClCompile Include="glsl.cpp">
       <Filter>Source Files\cwc</Filter>
     </ClCompile>
-    <ClCompile Include="glutwindow.cpp">
-      <Filter>Source Files\cwc</Filter>
-    </ClCompile>
     <ClCompile Include="glWindow.cpp">
       <Filter>Source Files\cwc</Filter>
     </ClCompile>
@@ -68,6 +65,9 @@
     </ClCompile>
     <ClCompile Include="Physics.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="glutwindow.cpp">
+      <Filter>Source Files\cwc</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
