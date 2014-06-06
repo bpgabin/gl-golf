@@ -10,7 +10,7 @@ using namespace std;
 
 
 // Reads in a mini-golf level and returns a level class containing the information
-Level* FileHandling::ReadFile( string filename)
+std::vector<Level*> FileHandling::ReadFile(string filename)
 {
 	// File reading variables
 	string line;
@@ -183,12 +183,10 @@ Level* FileHandling::ReadFile( string filename)
 		}		
 	}
 
-	Level* lev = levels[hole];
-	return lev;
-	// Close File
-	myfile.close();
+    // Close File
+    myfile.close();
 
-
+	return levels;
 }
 
 

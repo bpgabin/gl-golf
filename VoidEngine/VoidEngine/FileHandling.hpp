@@ -7,6 +7,6 @@ class FileHandling
 public:
 	int hole = 0;
 
-    Level*					ReadFile( std::string filename);
+    std::vector<Level*>			ReadFile( std::string filename);
 
 };

@@ -29,7 +29,7 @@ protected:
     cwc::glShader *shader;
 
 private:
-    Level* level;
+    std::vector<Level*> levels;
 
 	Camera* camera;
     Putter* putter;
@@ -43,6 +43,7 @@ private:
     std::vector<glm::mat4> mMatrices;
 
     unsigned timeSinceStart;
+    unsigned currentLevel = 0;
     float cameraAngle;
     float cameraRadius;
 	
@@ -62,8 +63,8 @@ public:
     {
         // Load Level
 	
-        level = file.ReadFile(inputFilename);
-        thirdPersonCamera = new ThirdPersonCamera(level->getGolfBall());
+        levels = file.ReadFile(inputFilename);
+        thirdPersonCamera = new ThirdPersonCamera(levels[currentLevel]->getGolfBall());
     }
 
     virtual void OnRender()
@@ -108,14 +109,14 @@ public:
         while (physicsLagTime > fixedUpdateTime)
         {
             physicsLagTime -= fixedUpdateTime;
-            Physics::fixedUpdate(*level, fixedUpdateTime);
+            Physics::fixedUpdate(*levels[currentLevel], fixedUpdateTime);
         }
 
         // Call Update
         Update(deltaTime);
 
         // Update Model Matrices
-        mMatrices[2] = level->getGolfBall()->getModelMatrix();
+        mMatrices[2] = levels[currentLevel]->getGolfBall()->getModelMatrix();
 
         // Render
         glutPostRedisplay();
@@ -127,7 +128,7 @@ public:
         camera->updateCamera(deltaTime);
 
         // Move Putter to Ball
-        putter->setPosition(level->getGolfBall()->getPosition());
+        putter->setPosition(levels[currentLevel]->getGolfBall()->getPosition());
         mMatrices[5] = putter->getModelMatrix();
 
         // Handle Input
@@ -168,6 +169,73 @@ public:
         glBindVertexArray(0);
     }
 
+    void LoadLevelData(unsigned level)
+    {
+        // Get Level Data
+        std::vector<glm::vec3> levelVerts = levels[currentLevel]->getTilesVertices();
+        std::vector<glm::vec3> levelNormals = levels[currentLevel]->getTilesNormals();
+        std::vector<GLuint> levelElements = levels[currentLevel]->getTilesIndices();
+        elementCounts[0] = levelElements.size();
+        mMatrices.push_back(glm::mat4());
+        diffuseColors.push_back(glm::vec4(0.0, 0.5, 0.0, 1.0));
+        ambientColors.push_back(glm::vec4(0.0, 0.2, 0.0, 1.0));
+
+        // Get Wall Data
+        std::vector<glm::vec3> wallVerts = levels[currentLevel]->getWallsVertices();
+        std::vector<glm::vec3> wallNormals = levels[currentLevel]->getWallsNormals();
+        std::vector<GLuint> wallElements = levels[currentLevel]->getWallsIndices();
+        elementCounts[1] = wallElements.size();
+        mMatrices.push_back(glm::mat4());
+        diffuseColors.push_back(glm::vec4(0.5, 0.0, 0.0, 1.0));
+        ambientColors.push_back(glm::vec4(0.2, 0.0, 0.0, 1.0));
+
+        // Get Ball Data
+        GolfBall* golfBall = levels[currentLevel]->getGolfBall();
+        std::vector<glm::vec3> ballVerts = golfBall->getVertices();
+        std::vector<glm::vec3> ballNormals = golfBall->getNormals();
+        std::vector<GLuint> ballElements = golfBall->getIndices();
+        elementCounts[2] = ballElements.size();
+        mMatrices.push_back(levels[currentLevel]->getGolfBall()->getModelMatrix());
+        diffuseColors.push_back(glm::vec4(0.5, 0.5, 0.5, 1.0));
+        ambientColors.push_back(glm::vec4(0.2, 0.2, 0.2, 1.0));
+
+        // Get Tee Data
+        std::vector<glm::vec3> teeVerts = levels[currentLevel]->getTeeVertices();
+        std::vector<glm::vec3> teeNormals = levels[currentLevel]->getTeeNormals();
+        std::vector<GLuint> teeElements = levels[currentLevel]->getTeeIndices();
+        elementCounts[3] = teeElements.size();
+        mMatrices.push_back(glm::mat4());
+        diffuseColors.push_back(glm::vec4(0.0, 0.0, 0.5, 1.0));
+        ambientColors.push_back(glm::vec4(0.0, 0.0, 0.2, 1.0));
+
+        // Get Cup Data
+        std::vector<glm::vec3> cupVerts = levels[currentLevel]->getCupVertices();
+        std::vector<glm::vec3> cupNormals = levels[currentLevel]->getCupNormals();
+        std::vector<GLuint> cupElements = levels[currentLevel]->getCupIndices();
+        elementCounts[4] = cupElements.size();
+        mMatrices.push_back(glm::mat4());
+        diffuseColors.push_back(glm::vec4(0.01, 0.01, 0.01, 1.0));
+        ambientColors.push_back(glm::vec4(0.01, 0.01, 0.01, 1.0));
+
+        //Putter
+        putter = levels[currentLevel]->getPutter();
+        std::vector<glm::vec3> puttVerts = putter->getVertices();
+        std::vector<glm::vec3> puttNormals = putter->getNormals();
+        std::vector<GLuint> puttElements = putter->getIndices();
+        elementCounts[5] = puttElements.size();
+        mMatrices.push_back(levels[currentLevel]->getPutter()->getModelMatrix());
+        diffuseColors.push_back(glm::vec4(0.5, 0.0, 0.0, 1.0));
+        ambientColors.push_back(glm::vec4(0.2, 0.0, 0.0, 1.0));
+
+        // Configure Buffers
+        SetupBuffer(vao[0], 0, levelVerts, levelNormals, levelElements);
+        SetupBuffer(vao[1], 3, wallVerts, wallNormals, wallElements);
+        SetupBuffer(vao[2], 6, ballVerts, ballNormals, ballElements);
+        SetupBuffer(vao[3], 9, teeVerts, teeNormals, teeElements);
+        SetupBuffer(vao[4], 12, cupVerts, cupNormals, cupElements);
+        SetupBuffer(vao[5], 15, puttVerts, puttNormals, puttElements);
+    }
+
     virtual void OnInit()
     {
 		// Set-up Cameras
@@ -189,73 +257,11 @@ public:
         if (shader == 0)
             std::cout << "Error Loading, compiling or linking shader\n";
 
-        // Get Level Data
-        std::vector<glm::vec3> levelVerts = level->getTilesVertices();
-        std::vector<glm::vec3> levelNormals = level->getTilesNormals();
-        std::vector<GLuint> levelElements = level->getTilesIndices();
-        elementCounts[0] = levelElements.size();
-        mMatrices.push_back(glm::mat4());
-        diffuseColors.push_back(glm::vec4(0.0, 0.5, 0.0, 1.0));
-        ambientColors.push_back(glm::vec4(0.0, 0.2, 0.0, 1.0));
-
-        // Get Wall Data
-        std::vector<glm::vec3> wallVerts = level->getWallsVertices();
-        std::vector<glm::vec3> wallNormals = level->getWallsNormals();
-        std::vector<GLuint> wallElements = level->getWallsIndices();
-        elementCounts[1] = wallElements.size();
-        mMatrices.push_back(glm::mat4());
-        diffuseColors.push_back(glm::vec4(0.5, 0.0, 0.0, 1.0));
-        ambientColors.push_back(glm::vec4(0.2, 0.0, 0.0, 1.0));
-
-        // Get Ball Data
-        GolfBall* golfBall = level->getGolfBall();
-        std::vector<glm::vec3> ballVerts = golfBall->getVertices();
-        std::vector<glm::vec3> ballNormals = golfBall->getNormals();
-        std::vector<GLuint> ballElements = golfBall->getIndices();
-        elementCounts[2] = ballElements.size();
-        mMatrices.push_back(level->getGolfBall()->getModelMatrix());
-        diffuseColors.push_back(glm::vec4(0.5, 0.5, 0.5, 1.0));
-        ambientColors.push_back(glm::vec4(0.2, 0.2, 0.2, 1.0));
-
-        // Get Tee Data
-        std::vector<glm::vec3> teeVerts = level->getTeeVertices();
-        std::vector<glm::vec3> teeNormals = level->getTeeNormals();
-        std::vector<GLuint> teeElements = level->getTeeIndices();
-        elementCounts[3] = teeElements.size();
-        mMatrices.push_back(glm::mat4());
-        diffuseColors.push_back(glm::vec4(0.0, 0.0, 0.5, 1.0));
-        ambientColors.push_back(glm::vec4(0.0, 0.0, 0.2, 1.0));
-
-        // Get Cup Data
-        std::vector<glm::vec3> cupVerts = level->getCupVertices();
-        std::vector<glm::vec3> cupNormals = level->getCupNormals();
-        std::vector<GLuint> cupElements = level->getCupIndices();
-        elementCounts[4] = cupElements.size();
-        mMatrices.push_back(glm::mat4());
-        diffuseColors.push_back(glm::vec4(0.01, 0.01, 0.01, 1.0));
-        ambientColors.push_back(glm::vec4(0.01, 0.01, 0.01, 1.0));
-
-        //Putter
-        putter = level->getPutter();
-        std::vector<glm::vec3> puttVerts = putter->getVertices();
-        std::vector<glm::vec3> puttNormals = putter->getNormals();
-        std::vector<GLuint> puttElements = putter->getIndices();
-        elementCounts[5] = puttElements.size();
-        mMatrices.push_back(level->getPutter()->getModelMatrix());
-        diffuseColors.push_back(glm::vec4(0.5, 0.0, 0.0, 1.0));
-        ambientColors.push_back(glm::vec4(0.2, 0.0, 0.0, 1.0));
-
         // Generate Buffers
         glGenVertexArrays(numberOfObjects, vao);
         glGenBuffers(numberOfObjects * 3, buffers);
 
-        // Configure Buffers
-        SetupBuffer(vao[0], 0, levelVerts, levelNormals, levelElements);
-        SetupBuffer(vao[1], 3, wallVerts, wallNormals, wallElements);
-        SetupBuffer(vao[2], 6, ballVerts, ballNormals, ballElements);
-        SetupBuffer(vao[3], 9, teeVerts, teeNormals, teeElements);
-        SetupBuffer(vao[4], 12, cupVerts, cupNormals, cupElements);
-        SetupBuffer(vao[5], 15, puttVerts, puttNormals, puttElements);
+        LoadLevelData(currentLevel);
     }
 
     virtual void OnResize(int w, int h)
@@ -336,14 +342,19 @@ public:
 		}
 		else if (cAscii == 'o') // 3
 		{
-			file.hole--;
-		
-		
+            if (currentLevel < levels.size() - 1)
+            {
+                currentLevel += 1;
+                LoadLevelData(currentLevel);
+            }
 		}
 		else if (cAscii == 'p') // 3
 		{
-			file.hole++;
-			
+            if (currentLevel > 0)
+            {
+                currentLevel -= 1;
+                file.hole++;
+            }
 		}
 		else
 		{
