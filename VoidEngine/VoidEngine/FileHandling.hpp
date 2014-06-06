@@ -2,8 +2,11 @@
 #include <string>
 #include "Level.hpp"
 
-// Since there's only one utility function, use namespace rather than a class.
-namespace FileHandling
+class FileHandling
 {
-    Level* ReadFile(std::string filename);
+public:
+	int hole = 0;
+
+    Level*					ReadFile( std::string filename);
+
 };

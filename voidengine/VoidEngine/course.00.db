@@ -1,3 +1,17 @@
+course "A Single Hole Course" 2
+begin_hole
+name "Simple Little Minigolf Hole"
+par 2
+tile 1 4 -0.5 0 1 0.5 0 1 0.5 0 0 -0.5 0 0 0 0 3 0
+tile 2 4 -1.5 0 0 -0.5 0 0 -0.5 0 -1 -1.5 0 -1 0 3 0 0
+tile 3 4 -0.5 0 0 0.5 0 0 0.5 0 -1 -0.5 0 -1 1 4 0 2
+tile 4 4 0.5 0 0 1.5 0 0 1.5 0 -1 0.5 0 -1 0 0 0 3
+tee 1 0 0 0.5
+cup 2 -1 0 -0.5
+end_hole
+begin_hole
+name "Simple Little Minigolf Hole two"
+par 2
 tile 1 4 -1 0 2.0 1 0 2.0 1 0 1.6 -1 0 1.6 0 0 2 0
 tile 2 4 -1 0 1.6 1 0 1.6 1 0.2 1.2 -1 0.2 1.2 1 0 3 0
 tile 3 4 -1 0.2 1.2 1 0.2 1.2 1 0.2 0.6 -1 0.2 0.6 2 0 4 0
@@ -9,4 +23,4 @@ tile 8 4 -1 0.2 -1.2 1 0.2 -1.2 1 0 -1.6 -1 0 -1.6 7 0 9 0
 tile 9 4 -1 0 -1.6 1 0 -1.6 1 0 -2.0 -1 0 -2.0 8 0 0 0
 tee 1 -0.75 0 1.8
 cup 8 0.75 0.1 -1.4
-
+end_hole

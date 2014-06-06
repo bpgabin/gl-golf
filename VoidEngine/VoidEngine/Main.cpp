@@ -55,12 +55,14 @@ private:
 	bool mouseDown = false;
 	std::vector<char> keysPressed;
 	int mouse_x, mouse_y;
+	FileHandling file;
 
 public:
     myWindow(string inputFilename)
     {
         // Load Level
-        level = FileHandling::ReadFile(inputFilename);
+	
+        level = file.ReadFile(inputFilename);
         thirdPersonCamera = new ThirdPersonCamera(level->getGolfBall());
     }
 
@@ -331,6 +333,17 @@ public:
 		{
 			camera = thirdPersonCamera;
 			glutPostRedisplay();
+		}
+		else if (cAscii == 'o') // 3
+		{
+			file.hole--;
+		
+		
+		}
+		else if (cAscii == 'p') // 3
+		{
+			file.hole++;
+			
 		}
 		else
 		{

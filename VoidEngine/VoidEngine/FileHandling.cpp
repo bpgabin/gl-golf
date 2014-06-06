@@ -5,10 +5,12 @@
 #include <sstream>
 #include <vector>
 #include <cassert>
+#include <stdio.h>
 using namespace std;
 
+
 // Reads in a mini-golf level and returns a level class containing the information
-Level* FileHandling::ReadFile(string filename)
+Level* FileHandling::ReadFile( string filename)
 {
 	// File reading variables
 	string line;
@@ -16,8 +18,13 @@ Level* FileHandling::ReadFile(string filename)
 
 	// Loaded object storage
 	vector<Tile> tiles;
+	vector<Level*> levels;
 	Level::LevelObject tee;
 	Level::LevelObject cup;
+	
+	int numCourses;
+	int par;
+	
 
 	// Open File Stream
 	ifstream myfile(filename, ifstream::in);
@@ -30,11 +37,57 @@ Level* FileHandling::ReadFile(string filename)
 		ss.clear();
 		// Load line into string stream
 		ss.str(line);
-
 		// Separation of data into separate strings
 		string object;
 		ss >> object;
-		if (object == "tee")
+		if (object == "course")
+		{
+			char quote;
+			//string holeName;
+			ss >> quote;
+			ss >> quote;
+
+			while (quote != '"')
+			{
+				cout << quote;
+				ss >> quote;
+			}
+
+			ss >> numCourses;
+			cout << " " << numCourses;
+			cout << endl;
+
+		}
+		else if (object == "begin_hole")
+		{
+			
+			
+				cout << "Hole " << hole+1 << endl;
+				tiles.clear();
+				
+
+		}
+		else if (object == "name")
+		{
+			char quote;
+			//string holeName;
+			ss >> quote;
+			ss >> quote;
+
+			while (quote != '"')
+			{
+				cout << quote;
+				ss >> quote;
+			}
+			cout << endl;
+
+		}
+		else if (object == "par")
+		{
+			ss >> par;
+			cout << "Par " << par << endl;
+		}
+		else if (object == "tee")
 		{
 			// Read tileID
 			string tileString;
@@ -60,7 +113,7 @@ Level* FileHandling::ReadFile(string filename)
 			string tileString;
 			ss >> tileString;
 			istringstream(tileString) >> cup.tileID;
-			
+
 			// Read position
 			float vert[3];
 			for (int i = 0; i < 3; i++)
@@ -73,6 +126,12 @@ Level* FileHandling::ReadFile(string filename)
 			// Create position and store it
 			glm::vec3 position(vert[0], vert[1], vert[2]);
 			cup.position = position;
+		}
+		else if (object == "end_hole")
+		{
+			Level* level = new Level(tiles, tee, cup);
+			levels.push_back(level);
+			//rturn new Level(tiles, tee, cup);
 		}
 		else
 		{
@@ -124,12 +183,14 @@ Level* FileHandling::ReadFile(string filename)
 		}		
 	}
 
+	Level* lev = levels[hole];
+	return lev;
 	// Close File
 	myfile.close();
 
-	// Create and return level
-    return new Level(tiles, tee, cup);
+
 }
+
 
 
 
