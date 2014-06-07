@@ -4,7 +4,7 @@
 
 Level* Level::sInstance = nullptr;
 
-Level::Level(std::vector<Tile> tiles, LevelObject tee, LevelObject cup) : mGolfBall(glm::vec3(0.0f, 0.0f, 0.0f), 0.05f, 50, 50), mPutter(&mGolfBall)
+Level::Level(std::vector<Tile> tiles, LevelObject tee, LevelObject cup, int par) : mGolfBall(glm::vec3(0.0f, 0.0f, 0.0f), 0.05f, 50, 50), mPutter(&mGolfBall)
 {
     sInstance = this;
 
@@ -12,6 +12,7 @@ Level::Level(std::vector<Tile> tiles, LevelObject tee, LevelObject cup) : mGolfB
     mTiles = tiles;
     mTee = tee;
     mCup = cup;
+	mpar = par;
 
     mGolfBall.setPosition(mTee.position);
     mGolfBall.setTileID(mTee.tileID);
@@ -111,6 +112,10 @@ std::vector<glm::vec3> Level::getCupNormals() const
 std::vector<GLuint> Level::getCupIndices() const
 {
     return mCupIndices;
+}
+int Level::getParNum()
+{
+	return mpar;
 }
 
 GolfBall* Level::getGolfBall()

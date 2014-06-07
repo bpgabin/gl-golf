@@ -13,8 +13,11 @@ public:
     std::vector<GLuint>     getIndices() const;
     glm::vec3	            getPosition() const;
     glm::mat4               getModelMatrix() const;
+	int						getStroke();
     void					setPosition(glm::vec3 position);
     virtual void			handleKeyboard(char input, float deltaTime);
+
+	
 
 private:
     void                    pushIndices(int sectors, int r, int s);
@@ -26,6 +29,8 @@ private:
     std::vector<GLuint>     mIndices;
     float					mAngle;
     float                   mPower;
+	int						mStroke;
+	bool					mlogic;
     glm::vec3				mPosition;
     GolfBall*				mGolfBall;
 

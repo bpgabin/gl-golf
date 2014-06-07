@@ -23,7 +23,8 @@ std::vector<Level*> FileHandling::ReadFile(string filename)
 	Level::LevelObject cup;
 	
 	int numCourses;
-	int par;
+	int par = 0;
+
 	
 
 	// Open File Stream
@@ -129,7 +130,7 @@ std::vector<Level*> FileHandling::ReadFile(string filename)
 		}
 		else if (object == "end_hole")
 		{
-			Level* level = new Level(tiles, tee, cup);
+			Level* level = new Level(tiles, tee, cup, par);
 			levels.push_back(level);
 			//rturn new Level(tiles, tee, cup);
 		}

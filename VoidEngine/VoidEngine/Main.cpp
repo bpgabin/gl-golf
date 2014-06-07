@@ -22,6 +22,8 @@ using namespace std;
 
 glm::vec3 calculateNormal(vector<glm::vec3>);
 
+
+
 class myWindow : public cwc::glutWindow
 {
 protected:
@@ -52,7 +54,8 @@ private:
 	float verticalAngle = 0.0f;
 	const float rotateX = 30.f;
     const float fixedUpdateTime = 1.0f / 60.0f;
-
+	int par;
+	int stroke = 0;
 	bool mouseDown = false;
 	std::vector<char> keysPressed;
 	int mouse_x, mouse_y;
@@ -65,6 +68,7 @@ public:
 	
         levels = file.ReadFile(inputFilename);
         thirdPersonCamera = new ThirdPersonCamera(levels[currentLevel]->getGolfBall());
+		
     }
 
     virtual void OnRender()
@@ -93,6 +97,17 @@ public:
 
 	
         shader->end();
+		char string[64];
+		char string2[64];
+		char string3[64];
+		
+		stroke = putter->getStroke();
+		sprintf_s(string, "Hole: %d", currentLevel+1);
+		sprintf_s(string2, " Par: %d",  par);
+		sprintf_s(string3, " Stroke: %d", stroke);
+		printtext(50, 100, string);
+		printtext(60, 100, string2);
+		printtext(70, 100, string3 );
 
         glutSwapBuffers();
     }
@@ -227,6 +242,9 @@ public:
         diffuseColors.push_back(glm::vec4(0.5, 0.0, 0.0, 1.0));
         ambientColors.push_back(glm::vec4(0.2, 0.0, 0.0, 1.0));
 
+		//Par
+		 par = levels[currentLevel]->getParNum();
+
         // Configure Buffers
         SetupBuffer(vao[0], 0, levelVerts, levelNormals, levelElements);
         SetupBuffer(vao[1], 3, wallVerts, wallNormals, wallElements);
@@ -263,6 +281,29 @@ public:
 
         LoadLevelData(currentLevel);
     }
+	void printtext(int x, int y, string String)
+	{
+		//(x,y) is from the bottom left of the window
+		glMatrixMode(GL_PROJECTION);
+		glPushMatrix();
+		glLoadIdentity();
+		glOrtho(0, GLUT_WINDOW_WIDTH, 0, GLUT_WINDOW_HEIGHT, -1.0f, 1.0f);
+		glMatrixMode(GL_MODELVIEW);
+		glPushMatrix();
+		glLoadIdentity();
+		glPushAttrib(GL_DEPTH_TEST);
+		glDisable(GL_DEPTH_TEST);
+		glRasterPos2i(x, y);
+		for (int i = 0; i<String.size(); i++)
+		{
+			glutBitmapCharacter(GLUT_BITMAP_9_BY_15, String[i]);
+		}
+		glPopAttrib();
+		glMatrixMode(GL_PROJECTION);
+		glPopMatrix();
+		glMatrixMode(GL_MODELVIEW);
+		glPopMatrix();
+	}
 
     virtual void OnResize(int w, int h)
     {
@@ -340,7 +381,7 @@ public:
 			camera = thirdPersonCamera;
 			glutPostRedisplay();
 		}
-		else if (cAscii == 'o') // 3
+		else if (cAscii == 'p') // 3
 		{
             if (currentLevel < levels.size() - 1)
             {
@@ -348,12 +389,12 @@ public:
                 LoadLevelData(currentLevel);
             }
 		}
-		else if (cAscii == 'p') // 3
+		else if (cAscii == 'o') // 3
 		{
             if (currentLevel > 0)
             {
                 currentLevel -= 1;
-                file.hole++;
+				LoadLevelData(currentLevel);
             }
 		}
 		else

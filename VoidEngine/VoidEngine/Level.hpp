@@ -25,7 +25,7 @@ public:
     };
 
 public:
-						    Level(std::vector<Tile> tiles, LevelObject tee, LevelObject cup);
+						    Level(std::vector<Tile> tiles, LevelObject tee, LevelObject cup, int par);
                             ~Level();
     
     static Level*           getInstance();
@@ -49,6 +49,8 @@ public:
     std::vector<glm::vec3>  getCupNormals() const;
     std::vector<GLuint>     getCupIndices() const;
 
+	int						getParNum();
+
     GolfBall*               getGolfBall();
     Putter*                 getPutter();
 
@@ -68,6 +70,7 @@ private:
     std::vector<Wall>       mWalls;
     LevelObject			    mTee;
     LevelObject			    mCup;
+	int						mpar;
     GolfBall                mGolfBall;
     Putter                  mPutter;
 

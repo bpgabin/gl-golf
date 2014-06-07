@@ -144,6 +144,7 @@ void checkCup(const Level &level, GolfBall* golfBall)
             golfBall->setPosition(tee.position);
             golfBall->setVelocity(glm::vec3(0.0f, 0.0f, 0.0f));
             golfBall->setTileID(tee.tileID);
+			
         }
         else
         {

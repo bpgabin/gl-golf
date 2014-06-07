@@ -5,6 +5,7 @@
 #include "Putter.hpp"
 #include "Level.hpp"
 #include <iostream>
+#include <windows.h>
 
 Putter::Putter(GolfBall* golfBall)
 {
@@ -29,6 +30,8 @@ Putter::Putter(GolfBall* golfBall)
     mNormals.push_back(normal);
     mAngle = 0.0f;
     mPower = 1.0f;
+	mStroke = 0;
+	mlogic = true;
 }
 
 std::vector<glm::vec3> Putter::getVertices() const
@@ -44,6 +47,10 @@ std::vector<glm::vec3> Putter::getNormals() const
 std::vector<GLuint> Putter::getIndices() const
 {
     return mIndices;
+}
+int Putter::getStroke()
+{
+	return mStroke;
 }
 
 glm::mat4 Putter::getModelMatrix() const
@@ -87,10 +94,19 @@ void Putter::handleKeyboard(char input, float deltaTime)
         if (mPower < 0.0f)
             mPower = 0.0f;
     }
-    if (input == 'l')
-    {
-        glm::vec3 newVelocity = glm::vec3(-cos(mAngle + 0.5f * M_PI), 0.0f, sin(mAngle + 0.5f * M_PI));
-        newVelocity *= mPower;
-        mGolfBall->setVelocity(newVelocity);
-    }
+	if (input == 'l')
+	{
+		
+		if (mlogic)
+		{
+			mStroke++;
+			mlogic = false;
+			Sleep(100);
+			mlogic = true;
+		}
+		glm::vec3 newVelocity = glm::vec3(-cos(mAngle + 0.5f * M_PI), 0.0f, sin(mAngle + 0.5f * M_PI));
+		newVelocity *= mPower;
+		mGolfBall->setVelocity(newVelocity);
+	}
+
 }
