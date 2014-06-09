@@ -55,7 +55,7 @@ private:
 	const float rotateX = 30.f;
     const float fixedUpdateTime = 1.0f / 60.0f;
 	int par;
-	int stroke = 0;
+    int stroke = 0;
 	bool mouseDown = false;
 	std::vector<char> keysPressed;
 	int mouse_x, mouse_y;
@@ -100,14 +100,17 @@ public:
 		char string[64];
 		char string2[64];
 		char string3[64];
+        char string4[64];
 		
 		stroke = putter->getStroke();
-		sprintf_s(string, "Hole: %d", currentLevel+1);
-		sprintf_s(string2, " Par: %d",  par);
+        sprintf_s(string4, "Player: %d", levels[currentLevel]->getCurrentPlayer());
+		sprintf_s(string, " Hole: %d", currentLevel + 1);
+		sprintf_s(string2, " Par: %d", par);
 		sprintf_s(string3, " Stroke: %d", stroke);
-		printtext(50, 100, string);
-		printtext(60, 100, string2);
-		printtext(70, 100, string3 );
+        printText(40, 100, string4);
+        printText(50, 100, string);
+		printText(60, 100, string2);
+		printText(70, 100, string3);
 
         glutSwapBuffers();
     }
@@ -154,6 +157,13 @@ public:
                 camera->handleKeyboard(keyPressed, deltaTime);
                 putter->handleKeyboard(keyPressed, deltaTime);
             }
+        }
+
+        // Check if level complete
+        if (levels[currentLevel]->getComplete())
+        {
+            currentLevel++;
+            LoadLevelData(currentLevel);
         }
     }
 
@@ -273,7 +283,9 @@ public:
         // Load Shader
         shader = SM.loadfromFile("vertexshader.txt", "fragmentshader.txt"); // load (and compile, link) from file
         if (shader == 0)
+        {
             std::cout << "Error Loading, compiling or linking shader\n";
+        }
 
         // Generate Buffers
         glGenVertexArrays(numberOfObjects, vao);
@@ -281,7 +293,7 @@ public:
 
         LoadLevelData(currentLevel);
     }
-	void printtext(int x, int y, string String)
+	void printText(int x, int y, string String)
 	{
 		//(x,y) is from the bottom left of the window
 		glMatrixMode(GL_PROJECTION);
@@ -294,7 +306,7 @@ public:
 		glPushAttrib(GL_DEPTH_TEST);
 		glDisable(GL_DEPTH_TEST);
 		glRasterPos2i(x, y);
-		for (int i = 0; i<String.size(); i++)
+		for (unsigned i = 0; i < String.size(); i++)
 		{
 			glutBitmapCharacter(GLUT_BITMAP_9_BY_15, String[i]);
 		}
@@ -320,6 +332,7 @@ public:
     }
     
     virtual void OnClose() {}
+
     virtual void OnMouseDown(int button, int x, int y) 
 	{
 		mouseDown = true;

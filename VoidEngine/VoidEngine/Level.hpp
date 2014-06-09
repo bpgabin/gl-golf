@@ -54,9 +54,14 @@ public:
     GolfBall*               getGolfBall();
     Putter*                 getPutter();
 
+    bool                    getComplete() const;
+    unsigned                getCurrentPlayer() const;
+
     void                    setTiles(std::vector<Tile> tiles);
     void                    setTee(LevelObject tee);
     void                    setCup(LevelObject cup);
+    void                    setComplete(bool complete);
+    void                    changePlayer();
 
 private:
     void                    processTiles();
@@ -73,6 +78,8 @@ private:
 	int						mpar;
     GolfBall                mGolfBall;
     Putter                  mPutter;
+    unsigned                mCurrentPlayer;
+    bool                    mComplete[2];
 
     std::vector<glm::vec3>  mTilesVertices;
     std::vector<glm::vec3>  mTilesNormals;

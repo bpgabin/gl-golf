@@ -7,6 +7,7 @@ Level* Level::sInstance = nullptr;
 Level::Level(std::vector<Tile> tiles, LevelObject tee, LevelObject cup, int par) : mGolfBall(glm::vec3(0.0f, 0.0f, 0.0f), 0.05f, 50, 50), mPutter(&mGolfBall)
 {
     sInstance = this;
+    mCurrentPlayer = 0;
 
     // Store level information
     mTiles = tiles;
@@ -73,7 +74,6 @@ std::vector<GLuint> Level::getWallsIndices() const
     return mWallsIndices;
 }
 
-
 Level::LevelObject Level::getTee() const
 {
     return mTee;
@@ -128,6 +128,16 @@ Putter* Level::getPutter()
     return &mPutter;
 }
 
+bool Level::getComplete() const
+{
+    return (mComplete[0] && mComplete[1]);
+}
+
+unsigned Level::getCurrentPlayer() const
+{
+    return mCurrentPlayer + 1;
+}
+
 void Level::setTiles(std::vector<Tile> tiles)
 {
     mTiles = tiles;
@@ -141,6 +151,25 @@ void Level::setTee(LevelObject tee)
 void Level::setCup(LevelObject cup)
 {
     mCup = cup;
+}
+
+void Level::setComplete(bool complete)
+{
+    mComplete[mCurrentPlayer] = complete;
+    if (mCurrentPlayer == 0)
+        changePlayer();
+}
+
+void Level::changePlayer()
+{
+    if (mCurrentPlayer == 0)
+    {
+        mCurrentPlayer = 1;
+    }
+    else
+    {
+        mCurrentPlayer = 0;
+    }
 }
 
 void Utility::processVerts(std::vector<glm::vec3> &points, std::vector<glm::vec3> &verts, std::vector<GLuint> &indices)

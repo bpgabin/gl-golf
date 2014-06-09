@@ -18,7 +18,7 @@ bool isInside(const Tile &tile, const glm::vec3 &point);
 void moveBallToGround(GolfBall* golfBall, Tile* tile);
 void frictionCalculation(GolfBall* golfBall, glm::vec3 normalForce, float &subTime, const float fixedUpdateTime);
 void collisionCheck(GolfBall* golfBall, Tile &tile);
-void checkCup(const Level &level, GolfBall* golfBall);
+void checkCup(Level &level, GolfBall* golfBall);
 
 void Physics::fixedUpdate(Level &level, float fixedUpdateTime)
 {
@@ -132,7 +132,7 @@ void collisionCheck(GolfBall* golfBall, Tile &tile)
     }
 }
 
-void checkCup(const Level &level, GolfBall* golfBall)
+void checkCup(Level &level, GolfBall* golfBall)
 {
     Level::LevelObject cup = level.getCup();
     if (glm::length(cup.position - golfBall->getPosition()) < 0.1f)
@@ -145,6 +145,8 @@ void checkCup(const Level &level, GolfBall* golfBall)
             golfBall->setVelocity(glm::vec3(0.0f, 0.0f, 0.0f));
             golfBall->setTileID(tee.tileID);
 			
+            // Advance the level!
+            level.setComplete(true);
         }
         else
         {
